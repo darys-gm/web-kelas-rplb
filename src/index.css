@@ -1,0 +1,2336 @@
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600;700&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
+* {
+    user-select: none;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    overscroll-behavior: smooth;
+}
+section {
+    will-change: transform, opacity;
+}
+
+body {
+    background-color: #fef9ef;
+    font-family: 'Hanken Grotesk', sans-serif;
+    font-size: 14px;
+    line-height: 22px;
+    font-weight: 400;
+    color: #1d1c16;
+    min-height: 100vh;
+}
+
+main > :first-child {
+    margin-top: 0 !important;
+}
+
+main > :last-child {
+    margin-bottom: 0 !important;
+}
+
+/* ============================================
+   SCROLLBAR
+   ============================================ */
+::-webkit-scrollbar {
+    display: none;
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #3b82f6;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #2563eb;
+}
+
+/* ============================================
+   FONT CLASSES
+   ============================================ */
+.font-body-lg {
+    font-family: 'Hanken Grotesk', sans-serif;
+}
+
+.font-body-md {
+    font-family: 'Hanken Grotesk', sans-serif;
+}
+
+.font-body-sm {
+    font-family: 'Hanken Grotesk', sans-serif;
+}
+
+.font-headline-lg {
+    font-family: 'Libre Caslon Text', serif;
+}
+
+.font-headline-md {
+    font-family: 'Libre Caslon Text', serif;
+}
+
+.font-headline-sm {
+    font-family: 'Libre Caslon Text', serif;
+}
+
+.font-display-hero {
+    font-family: 'Libre Caslon Text', serif;
+}
+
+.font-title-md {
+    font-family: 'Hanken Grotesk', sans-serif;
+}
+
+.font-title-sm {
+    font-family: 'Hanken Grotesk', sans-serif;
+}
+
+.font-label-code {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.font-label-nav-coordinates {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* ============================================
+   TEXT SIZES
+   ============================================ */
+.text-body-lg {
+    font-size: 16px;
+    line-height: 26px;
+    font-weight: 400;
+}
+
+.text-body-md {
+    font-size: 14px;
+    line-height: 22px;
+    font-weight: 400;
+}
+
+.text-body-sm {
+    font-size: 12px;
+    line-height: 18px;
+    font-weight: 400;
+}
+
+.text-headline-lg {
+    font-size: 32px;
+    line-height: 40px;
+    font-weight: 600;
+}
+
+.text-headline-md {
+    font-size: 24px;
+    line-height: 32px;
+    font-weight: 600;
+}
+
+.text-headline-sm {
+    font-size: 20px;
+    line-height: 28px;
+    font-weight: 600;
+}
+
+.text-display-hero {
+    font-size: 48px;
+    line-height: 56px;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+}
+
+.text-title-md {
+    font-size: 18px;
+    line-height: 26px;
+    font-weight: 600;
+}
+
+.text-title-sm {
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 600;
+}
+
+.text-label-code {
+    font-size: 13px;
+    line-height: 18px;
+    letter-spacing: 0.03em;
+    font-weight: 500;
+}
+
+.text-label-nav-coordinates {
+    font-size: 11px;
+    line-height: 16px;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+}
+
+/* ============================================
+   COLORS
+   ============================================ */
+/* Backgrounds */
+.bg-surface {
+    background-color: #fef9ef;
+}
+.bg-surface-container {
+    background-color: #f2ede3;
+}
+.bg-surface-container-low {
+    background-color: #f8f3e9;
+}
+.bg-surface-container-high {
+    background-color: #ede8de;
+}
+.bg-surface-container-lowest {
+    background-color: #ffffff;
+}
+.bg-surface-bright {
+    background-color: #fef9ef;
+}
+.bg-surface-dim {
+    background-color: #dedad0;
+}
+.bg-primary {
+    background-color: #090704;
+}
+.bg-primary-container {
+    background-color: #221f1b;
+}
+.bg-primary-fixed {
+    background-color: #e9e1db;
+}
+.bg-primary-fixed-dim {
+    background-color: #ccc5bf;
+}
+.bg-secondary {
+    background-color: #7b5807;
+}
+.bg-secondary-container {
+    background-color: #fdcd76;
+}
+.bg-secondary-fixed {
+    background-color: #ffdea7;
+}
+.bg-secondary-fixed-dim {
+    background-color: #eebf6a;
+}
+.bg-tertiary {
+    background-color: #0a0603;
+}
+.bg-tertiary-container {
+    background-color: #241e18;
+}
+.bg-tertiary-fixed {
+    background-color: #ede0d6;
+}
+.bg-tertiary-fixed-dim {
+    background-color: #d0c5ba;
+}
+.bg-error {
+    background-color: #ba1a1a;
+}
+.bg-error-container {
+    background-color: #ffdad6;
+}
+.bg-outline {
+    background-color: #7d766e;
+}
+.bg-outline-variant {
+    background-color: #cec5bc;
+}
+
+/* Text Colors */
+.text-primary {
+    color: #090704;
+}
+.text-secondary {
+    color: #7b5807;
+}
+.text-tertiary {
+    color: #0a0603;
+}
+.text-on-surface {
+    color: #1d1c16;
+}
+.text-on-surface-variant {
+    color: #4b463f;
+}
+.text-on-secondary {
+    color: #ffffff;
+}
+.text-on-secondary-container {
+    color: #785504;
+}
+.text-on-secondary-fixed {
+    color: #271900;
+}
+.text-on-secondary-fixed-variant {
+    color: #5e4200;
+}
+.text-on-primary {
+    color: #ffffff;
+}
+.text-on-primary-container {
+    color: #8c8680;
+}
+.text-on-primary-fixed {
+    color: #1e1b17;
+}
+.text-on-primary-fixed-variant {
+    color: #4a4641;
+}
+.text-on-tertiary {
+    color: #ffffff;
+}
+.text-on-tertiary-container {
+    color: #8f857c;
+}
+.text-on-tertiary-fixed {
+    color: #201b14;
+}
+.text-on-tertiary-fixed-variant {
+    color: #4d453e;
+}
+.text-on-error {
+    color: #ffffff;
+}
+.text-on-error-container {
+    color: #93000a;
+}
+.text-on-background {
+    color: #1d1c16;
+}
+.text-inverse-on-surface {
+    color: #f5f0e6;
+}
+.text-inverse-primary {
+    color: #ccc5bf;
+}
+.text-secondary-container {
+    color: #fdcd76;
+}
+
+/* ============================================
+   SPACING UTILITIES (Tailwind compatible)
+   ============================================ */
+.gap-space-2xs {
+    gap: 0.25rem;
+}
+.gap-space-xs {
+    gap: 0.5rem;
+}
+.gap-space-sm {
+    gap: 0.75rem;
+}
+.gap-space-md {
+    gap: 1rem;
+}
+.gap-space-lg {
+    gap: 1.5rem;
+}
+.gap-space-xl {
+    gap: 2rem;
+}
+.gap-space-2xl {
+    gap: 3rem;
+}
+.gap-space-3xl {
+    gap: 4.5rem;
+}
+
+.p-space-2xs {
+    padding: 0.25rem;
+}
+.p-space-xs {
+    padding: 0.5rem;
+}
+.p-space-sm {
+    padding: 0.75rem;
+}
+.p-space-md {
+    padding: 1rem;
+}
+.p-space-lg {
+    padding: 1.5rem;
+}
+.p-space-xl {
+    padding: 2rem;
+}
+.p-space-2xl {
+    padding: 3rem;
+}
+.p-space-3xl {
+    padding: 4.5rem;
+}
+
+.px-gutter-mobile {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+.px-gutter-desktop {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+.py-space-2xs {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+}
+.py-space-xs {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+.py-space-sm {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+.py-space-md {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+.py-space-lg {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+}
+.py-space-xl {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+.py-space-2xl {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+}
+.py-space-3xl {
+    padding-top: 4.5rem;
+    padding-bottom: 4.5rem;
+}
+
+.mb-space-2xs {
+    margin-bottom: 0.25rem;
+}
+.mb-space-xs {
+    margin-bottom: 0.5rem;
+}
+.mb-space-sm {
+    margin-bottom: 0.75rem;
+}
+.mb-space-md {
+    margin-bottom: 1rem;
+}
+.mb-space-lg {
+    margin-bottom: 1.5rem;
+}
+.mb-space-xl {
+    margin-bottom: 2rem;
+}
+.mb-space-2xl {
+    margin-bottom: 3rem;
+}
+
+.mt-space-2xs {
+    margin-top: 0.25rem;
+}
+.mt-space-xs {
+    margin-top: 0.5rem;
+}
+.mt-space-sm {
+    margin-top: 0.75rem;
+}
+.mt-space-md {
+    margin-top: 1rem;
+}
+.mt-space-lg {
+    margin-top: 1.5rem;
+}
+
+.pt-space-xs {
+    padding-top: 0.5rem;
+}
+.pt-space-sm {
+    padding-top: 0.75rem;
+}
+.pt-space-md {
+    padding-top: 1rem;
+}
+.pt-space-lg {
+    padding-top: 1.5rem;
+}
+
+.pb-space-xs {
+    padding-bottom: 0.5rem;
+}
+.pb-space-sm {
+    padding-bottom: 0.75rem;
+}
+.pb-space-md {
+    padding-bottom: 1rem;
+}
+.pb-space-lg {
+    padding-bottom: 1.5rem;
+}
+.pb-space-xl {
+    padding-bottom: 2rem;
+}
+
+/* ============================================
+   MATERIAL ICONS
+   ============================================ */
+.material-symbols-outlined {
+    font-family: 'Material Symbols Outlined';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(60px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes zoomIn {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.animated {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+.animate-\[spin_60s_linear_infinite\] {
+    animation: spin 60s linear infinite;
+}
+
+/* ============================================
+   WALI KELAS CARD
+   ============================================ */
+.wali-kelas-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 1rem;
+    padding: 2rem;
+    color: white;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.wali-kelas-card:hover {
+    transform: translateY(-5px);
+}
+
+.wali-kelas-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    transform: rotate(45deg) translateY(-100%);
+    transition: transform 0.6s ease;
+}
+
+.wali-kelas-card:hover::before {
+    transform: rotate(45deg) translateY(100%);
+}
+
+.wali-kelas-photo {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    margin: 0 auto 1rem;
+    overflow: hidden;
+    position: relative;
+    z-index: 2;
+}
+
+.wali-kelas-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ============================================
+   CLICKABLE CARD
+   ============================================ */
+.clickable-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.clickable-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+}
+
+.clickable-card:active {
+    transform: scale(0.98);
+}
+
+/* ============================================
+   PHOTO ZOOM
+   ============================================ */
+.photo-zoom {
+    transition: transform 0.3s ease;
+}
+
+.clickable-card:hover .photo-zoom {
+    transform: scale(1.2);
+}
+
+/* ============================================
+   PROFILE MODAL
+   ============================================ */
+.profile-modal {
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s;
+}
+
+.profile-modal-content {
+    position: relative;
+    max-width: 80%;
+    max-height: 80vh;
+    animation: zoomIn 0.3s;
+}
+
+@media (min-width: 768px) {
+    .profile-modal-content {
+        max-width: 40%;
+    }
+}
+
+.profile-modal img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 10px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.profile-modal-close {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    color: white;
+    font-size: 35px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.profile-modal-close:hover {
+    color: #ff6b6b;
+}
+
+.profile-info {
+    position: absolute;
+    bottom: -60px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    color: white;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 10px;
+    border-radius: 0 0 10px 10px;
+}
+
+.profile-info h3 {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+}
+
+.profile-info p {
+    font-size: 1rem;
+    opacity: 0.8;
+}
+
+/* ============================================
+   SOCIAL BUTTONS
+   ============================================ */
+.social-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    color: white;
+    font-size: 14px;
+    margin: 0 3px;
+    margin-top: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    text-decoration: none;
+}
+
+.social-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.instagram-btn {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+}
+
+.github-btn {
+    background: #333;
+}
+
+.youtube-btn {
+    background: #FF0000;
+}
+
+.steam-btn {
+    background: #171a21;
+}
+
+/* ============================================
+   GALLERY
+   ============================================ */
+.gallery-modal {
+    position: fixed;
+    z-index: 3000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s;
+    padding: 40px;
+}
+
+.gallery-modal-content {
+    position: relative;
+    max-width: 50%;
+    max-height: 60vh;
+    margin: auto;
+    animation: zoomIn 0.4s;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.7);
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+    padding: 15px;
+}
+
+.gallery-modal img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    border-radius: 8px;
+}
+
+.gallery-modal-close {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    color: white;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 3001;
+    transition: all 0.3s ease;
+    background: rgba(0, 0, 0, 0.5);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gallery-modal-close:hover {
+    color: #ff6b6b;
+    background: rgba(0, 0, 0, 0.7);
+    transform: rotate(90deg);
+}
+
+.gallery-item {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    height: 250px;
+}
+
+.gallery-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.gallery-item:hover img {
+    transform: scale(1.05);
+}
+
+.gallery-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 100%);
+    color: white;
+    padding: 15px;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+}
+
+.gallery-item:hover .gallery-overlay {
+    transform: translateY(0);
+}
+
+.gallery-overlay h3 {
+    margin: 0 0 5px 0;
+    font-size: 1.1rem;
+}
+
+.gallery-overlay p {
+    margin: 0;
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+/* ============================================
+   GALLERY MOBILE
+   ============================================ */
+@media (max-width: 768px) {
+    .gallery-modal {
+        padding: 10px;
+    }
+    .gallery-modal-content {
+        max-width: 90%;
+        max-height: 80vh;
+        padding: 10px;
+    }
+    .gallery-modal-close {
+        top: 10px;
+        right: 15px;
+        font-size: 30px;
+        width: 40px;
+        height: 40px;
+    }
+    .profile-modal-content {
+        max-width: 90%;
+    }
+    .text-display-hero {
+        font-size: 34px;
+        line-height: 42px;
+        letter-spacing: -0.01em;
+    }
+    .text-headline-lg {
+        font-size: 26px;
+        line-height: 34px;
+    }
+}
+
+/* ============================================
+   SMOOTH SCROLL
+   ============================================ */
+html {
+    scroll-behavior: smooth;
+}
+
+/* ============================================
+   SUBJECT CELL STYLES (Jadwal Pelajaran)
+   ============================================ */
+.bg-blue-100 {
+    background-color: #dbeafe;
+}
+.text-blue-800 {
+    color: #1e40af;
+}
+.bg-green-100 {
+    background-color: #dcfce7;
+}
+.text-green-800 {
+    color: #166534;
+}
+.bg-purple-100 {
+    background-color: #f3e8ff;
+}
+.text-purple-800 {
+    color: #6b21a8;
+}
+.bg-orange-100 {
+    background-color: #ffedd5;
+}
+.text-orange-800 {
+    color: #9a3412;
+}
+.bg-red-100 {
+    background-color: #fee2e2;
+}
+.text-red-800 {
+    color: #b91c1c;
+}
+.bg-yellow-100 {
+    background-color: #fef9c3;
+}
+.text-yellow-800 {
+    color: #854d0e;
+}
+.bg-teal-100 {
+    background-color: #ccfbf1;
+}
+.text-teal-800 {
+    color: #115e59;
+}
+.bg-indigo-100 {
+    background-color: #e0e7ff;
+}
+.text-indigo-800 {
+    color: #3730a3;
+}
+.bg-pink-100 {
+    background-color: #fce7f3;
+}
+.text-pink-800 {
+    color: #9d174d;
+}
+.bg-amber-100 {
+    background-color: #fef3c7;
+}
+.text-amber-800 {
+    color: #78350f;
+}
+.bg-lime-100 {
+    background-color: #ecfccb;
+}
+.text-lime-800 {
+    color: #3f6212;
+}
+.bg-violet-100 {
+    background-color: #ede9fe;
+}
+.text-violet-800 {
+    color: #5b21b6;
+}
+.bg-gray-100 {
+    background-color: #f3f4f6;
+}
+.text-gray-800 {
+    color: #1f2937;
+}
+.bg-cyan-100 {
+    background-color: #cffafe;
+}
+.text-cyan-800 {
+    color: #155e75;
+}
+
+/* ============================================
+   RING & SHADOW UTILITIES
+   ============================================ */
+.ring-1 {
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+.ring-secondary\/20 {
+    box-shadow: 0 0 0 1px rgba(123, 88, 7, 0.2);
+}
+.shadow-xs {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+.shadow-sm {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+.shadow-md {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+.shadow-lg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+.shadow-xl {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+.shadow-inner {
+    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+}
+.shadow-\[0_1px_8px_rgba\(0\2c 0\2c 0\2c 0\.06\)\] {
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.06);
+}
+.shadow-\[0_1px_4px_rgba\(0\2c 0\2c 0\2c 0\.04\)\] {
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+.shadow-\[0_-1px_10px_rgba\(0\2c 0\2c 0\2c 0\.03\)\] {
+    box-shadow: 0 -1px 10px rgba(0, 0, 0, 0.03);
+}
+
+/* ============================================
+   BACKDROP BLUR
+   ============================================ */
+.backdrop-blur-xl {
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+}
+.backdrop-blur-sm {
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+/* ============================================
+   TRANSITIONS
+   ============================================ */
+.transition-colors {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+.transition-transform {
+    transition-property: transform;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+.transition-all {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+.duration-500 {
+    transition-duration: 500ms;
+}
+
+.duration-1000 {
+    transition-duration: 1000ms;
+}
+
+/* ============================================
+   GROUP HOVER
+   ============================================ */
+.group:hover .group-hover\:rotate-12 {
+    transform: rotate(12deg);
+}
+.group:hover .group-hover\:scale-105 {
+    transform: scale(1.05);
+}
+.group:hover .group-hover\:text-secondary {
+    color: #7b5807;
+}
+.group:hover .group-hover\:bg-secondary-container {
+    background-color: #fdcd76;
+}
+
+/* ============================================
+   RESPONSIVE UTILITIES
+   ============================================ */
+@media (min-width: 640px) {
+    .sm\:inline-block {
+        display: inline-block;
+    }
+    .sm\:w-88 {
+        width: 22rem;
+    }
+    .sm\:h-88 {
+        height: 22rem;
+    }
+    .sm\:grid-cols-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .sm\:grid-cols-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .sm\:flex {
+        display: flex;
+    }
+    .sm\:hidden {
+        display: none;
+    }
+}
+
+@media (min-width: 768px) {
+    .md\:inline-block {
+        display: inline-block;
+    }
+    .md\:flex {
+        display: flex;
+    }
+    .md\:hidden {
+        display: none;
+    }
+    .md\:grid-cols-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .md\:grid-cols-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .md\:grid-cols-4 {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .md\:col-span-2 {
+        grid-column: span 2 / span 2;
+    }
+    .md\:flex-row {
+        flex-direction: row;
+    }
+    .md\:items-end {
+        align-items: flex-end;
+    }
+    .md\:text-2xl {
+        font-size: 1.5rem;
+    }
+    .md\:text-3xl {
+        font-size: 1.875rem;
+    }
+    .md\:text-4xl {
+        font-size: 2.25rem;
+    }
+    .md\:text-5xl {
+        font-size: 3rem;
+    }
+    .md\:text-6xl {
+        font-size: 3.75rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .lg\:col-span-4 {
+        grid-column: span 4 / span 4;
+    }
+    .lg\:col-span-5 {
+        grid-column: span 5 / span 5;
+    }
+    .lg\:col-span-7 {
+        grid-column: span 7 / span 7;
+    }
+    .lg\:col-span-8 {
+        grid-column: span 8 / span 8;
+    }
+    .lg\:grid-cols-12 {
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+    .lg\:px-gutter-desktop {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+    .lg\:py-space-3xl {
+        padding-top: 4.5rem;
+        padding-bottom: 4.5rem;
+    }
+    .lg\:text-6xl {
+        font-size: 3.75rem;
+    }
+}
+
+@media (min-width: 1280px) {
+    .xl\:flex {
+        display: flex;
+    }
+    .xl\:hidden {
+        display: none;
+    }
+}
+
+/* ============================================
+   ORGANIZATION DIAGRAM - MANUAL PIRATE THEME
+   ============================================ */
+
+.org-diagram {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 20px 0;
+}
+
+/* ==========================================
+   LEVELS
+   ========================================== */
+.org-level {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    padding: 4px 0;
+}
+
+.org-level.level-0 {
+    padding-bottom: 0;
+}
+
+.org-level.level-1 {
+    padding-top: 0;
+}
+
+.org-level.level-2 {
+    padding-top: 25px !important;
+}
+
+.org-level.level-3 {
+    padding-top: 30px !important;
+}
+
+/* ==========================================
+   NODES ROW
+   ========================================== */
+.org-nodes-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 30px;
+    width: 100%;
+}
+
+.org-level.level-2 .org-nodes-row {
+    gap: 50px !important;
+}
+
+.org-level.level-3 .org-nodes-row {
+    gap: 45px !important;
+}
+
+/* ==========================================
+   NODE GROUP (for Sekretaris & Bendahara)
+   ========================================== */
+.org-node-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    min-width: 200px !important;
+}
+
+.group-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #7b5807;
+    background: #ede8de;
+    padding: 4px 14px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid #d5cdc2;
+}
+
+.group-nodes {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 25px !important;
+}
+
+/* ==========================================
+   NODE CARD
+   ========================================== */
+.org-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.node-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 14px 18px 16px;
+    min-width: 120px;
+    max-width: 160px;
+    text-align: center;
+    border: 1.5px solid #ede8de;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.node-card::before {
+    content: '⚓';
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    font-size: 10px;
+    opacity: 0.12;
+}
+
+.node-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(123, 88, 7, 0.12);
+    border-color: #7b5807;
+}
+
+/* Node Photo */
+.node-photo {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    margin: 0 auto 8px;
+    padding: 3px;
+    background: #f8f3e9;
+    border: 2.5px solid #7b5807;
+    box-shadow: 0 2px 8px rgba(123, 88, 7, 0.12);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.node-card:hover .node-photo {
+    border-color: #fdcd76;
+    box-shadow: 0 4px 16px rgba(123, 88, 7, 0.2);
+}
+
+.node-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+/* Node Text */
+.node-name {
+    font-family: 'Hanken Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #090704;
+    line-height: 1.3;
+}
+
+.node-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: #7b5807;
+    margin-top: 2px;
+    background: #f8f3e9;
+    padding: 2px 10px;
+    border-radius: 20px;
+    display: inline-block;
+    border: 1px solid #ede8de;
+}
+
+.node-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    font-weight: 500;
+    color: #7d766e;
+    margin-top: 4px;
+    opacity: 0.7;
+}
+
+/* ==========================================
+   CARD VARIANTS
+   ========================================== */
+
+/* Wali Kelas - Root */
+.wali-kelas-card {
+    background: linear-gradient(145deg, #fef9ef 0%, #e8dfd2 100%) !important;
+    border-color: #7b5807 !important;
+    border-width: 2.5px !important;
+    box-shadow: 0 8px 32px rgba(123, 88, 7, 0.15) !important;
+    min-width: 170px !important;
+    max-width: 200px !important;
+}
+
+.wali-kelas-card::before {
+    content: '⭐' !important;
+    opacity: 0.25 !important;
+    font-size: 14px !important;
+}
+
+.wali-kelas-card .node-title {
+    background: #7b5807 !important;
+    color: #ffffff !important;
+    border-color: #7b5807 !important;
+}
+
+.wali-kelas-card .node-photo {
+    width: 80px !important;
+    height: 80px !important;
+    border-color: #7b5807 !important;
+}
+
+/* Ketua & Wakil */
+.ketua-card,
+.wakil-card {
+    background: linear-gradient(145deg, #ffffff 0%, #f5eee3 100%) !important;
+    border-color: #fdcd76 !important;
+    border-width: 2px !important;
+}
+
+.ketua-card .node-title,
+.wakil-card .node-title {
+    background: #fdcd76 !important;
+    color: #271900 !important;
+    border-color: #eebf6a !important;
+}
+
+/* Sekretaris - Pink Accent */
+.sekretaris-card {
+    border-left: 4px solid #db2777 !important;
+    border-radius: 16px 16px 16px 16px !important;
+}
+
+.sekretaris-card .node-title {
+    background: #fce7f3 !important;
+    color: #be185d !important;
+    border-color: #f9a8d4 !important;
+}
+
+/* Bendahara - Green Accent */
+.bendahara-card {
+    border-left: 4px solid #16a34a !important;
+}
+
+.bendahara-card .node-title {
+    background: #dcfce7 !important;
+    color: #15803d !important;
+    border-color: #86efac !important;
+}
+
+/* Seksi Kebersihan - Cyan Accent */
+.seksi-kebersihan-card {
+    border-left: 4px solid #06b6d4 !important;
+}
+
+.seksi-kebersihan-card .node-title {
+    background: #cffafe !important;
+    color: #0891b2 !important;
+    border-color: #67e8f9 !important;
+}
+
+/* Seksi Rohani - Gold/Amber Accent */
+.seksi-rohani-card {
+    border-left: 4px solid #d4af37 !important;
+}
+
+.seksi-rohani-card .node-title {
+    background: #fef3c7 !important;
+    color: #b45309 !important;
+    border-color: #fcd34d !important;
+}
+
+/* ==========================================
+   BINGKAI DI DEPAN CARD (FRAME OVERLAY)
+   ========================================== */
+
+/* Container card dengan bingkai */
+.card-with-frame {
+    position: relative;
+    overflow: visible !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    min-width: 180px !important;
+    max-width: 220px !important;
+    height: auto !important;
+}
+
+/* Bingkai sebagai overlay di atas card */
+.frame-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(100% + 50px);
+    height: calc(100% + 60px);
+    z-index: 20;
+    pointer-events: none;
+    transition: all 0.4s ease;
+}
+
+.frame-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    opacity: 1;
+    filter: drop-shadow(0 4px 15px rgba(123, 88, 7, 0.15));
+    transition: all 0.4s ease;
+}
+
+/* Efek hover pada bingkai */
+.card-with-frame:hover .frame-image {
+    filter: drop-shadow(0 8px 30px rgba(123, 88, 7, 0.3)) brightness(1.1);
+    transform: scale(1.03);
+}
+
+/* Konten card berada di atas bingkai */
+.card-with-frame .relative.z-10 {
+    position: relative;
+    z-index: 15;
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 28px 24px 30px !important;
+    margin: 18px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    border: none !important;
+    transition: all 0.3s ease;
+    min-height: 240px !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-with-frame:hover .relative.z-10 {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(123, 88, 7, 0.12);
+}
+
+/* Node photo di dalam card */
+.card-with-frame .node-photo {
+    width: 80px !important;
+    height: 80px !important;
+    border-radius: 50%;
+    margin: 0 auto 8px !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.card-with-frame:hover .node-photo {
+    transform: scale(1.05);
+}
+
+.card-with-frame .node-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+/* Node text */
+.card-with-frame .node-name {
+    font-family: 'Hanken Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #090704;
+    line-height: 1.2;
+    margin-bottom: 2px;
+    text-align: center;
+}
+
+.card-with-frame .node-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background: #f8f3e9 !important;
+    color: #7b5807 !important;
+    border-color: #ede8de !important;
+    margin-top: 2px;
+    padding: 3px 12px;
+    border-radius: 20px;
+    display: inline-block;
+    border: 1px solid #ede8de;
+}
+
+.card-with-frame .node-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    font-weight: 500;
+    color: #7d766e;
+    margin-top: 4px;
+    opacity: 0.7;
+}
+
+/* MENGHAPUS SEMUA BORDER WARNA DAN EMOJI */
+.card-with-frame .relative.z-10 {
+    border: none !important;
+}
+
+.card-with-frame .relative.z-10::before {
+    display: none !important;
+}
+
+.node-card::before {
+    display: none !important;
+}
+
+.wali-kelas-card.card-with-frame .relative.z-10 {
+    border: none !important;
+}
+
+/* ==========================================
+   WALI KELAS - KHUSUS (LEBIH BESAR)
+   ========================================== */
+
+.wali-kelas-card.card-with-frame {
+    min-width: 220px !important;
+    max-width: 260px !important;
+}
+
+.wali-kelas-card.card-with-frame .frame-overlay {
+    width: calc(100% + 60px);
+    height: calc(100% + 70px);
+}
+
+.wali-kelas-card.card-with-frame .relative.z-10 {
+    padding: 32px 28px 34px !important;
+    margin: 22px;
+    border-radius: 24px;
+    min-height: 280px !important;
+}
+
+.wali-kelas-card.card-with-frame .node-photo {
+    width: 100px !important;
+    height: 100px !important;
+}
+
+.wali-kelas-card.card-with-frame .node-name {
+    font-size: 18px;
+}
+
+.wali-kelas-card.card-with-frame .node-title {
+    font-size: 11px;
+    background: #7b5807 !important;
+    color: #ffffff !important;
+    border-color: #7b5807 !important;
+}
+
+/* ==========================================
+   CONNECTORS - LEBIH TERHUBUNG
+   ========================================== */
+
+/* Vertical Connector */
+.org-connector.vertical {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px 0 !important;
+}
+
+.connector-line {
+    width: 3px;
+    height: 35px !important;
+    background: linear-gradient(180deg, #7b5807, rgba(123, 88, 7, 0.6));
+    opacity: 0.6;
+    position: relative;
+}
+
+.connector-line::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: -3px;
+    width: 9px;
+    height: 9px;
+    background: radial-gradient(circle, rgba(123, 88, 7, 0.25) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.connector-diamond {
+    width: 14px;
+    height: 14px;
+    background: #7b5807;
+    transform: rotate(45deg);
+    border: 2px solid #fdcd76;
+    opacity: 0.8;
+    margin: 6px 0;
+    box-shadow: 0 0 20px rgba(123, 88, 7, 0.3);
+}
+
+.connector-diamond.small {
+    width: 10px;
+    height: 10px;
+}
+
+/* Complex Connector (Horizontal + Vertical) */
+.org-connector.complex {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 15px 0 !important;
+    gap: 6px;
+}
+
+.connector-horizontal {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 600px !important;
+    height: 3px;
+    position: relative;
+    background: transparent;
+}
+
+.h-line {
+    flex: 1;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #7b5807, transparent);
+    opacity: 0.6;
+    position: relative;
+}
+
+.h-line::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    width: 100%;
+    height: 7px;
+    background: radial-gradient(ellipse at center, rgba(123, 88, 7, 0.15) 0%, transparent 70%);
+}
+
+.h-center {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.h-center .w-4 {
+    width: 14px !important;
+    height: 14px !important;
+    background: #7b5807 !important;
+    transform: rotate(45deg);
+    border: 2px solid #fdcd76 !important;
+    box-shadow: 0 0 20px rgba(123, 88, 7, 0.3);
+}
+
+.connector-vertical-group {
+    display: flex;
+    justify-content: center;
+    gap: 50px !important;
+    width: 100%;
+    max-width: 600px !important;
+    padding-top: 4px;
+}
+
+.v-line {
+    width: 3px;
+    height: 24px;
+    background: linear-gradient(180deg, #7b5807, rgba(123, 88, 7, 0.3));
+    opacity: 0.5;
+    flex: 1;
+    position: relative;
+}
+
+.v-line::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: -4px;
+    width: 11px;
+    height: 11px;
+    background: radial-gradient(circle, rgba(123, 88, 7, 0.2) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.left-v {
+    flex: 1;
+    margin-right: 6px;
+}
+
+.right-v {
+    flex: 1;
+    margin-left: 6px;
+}
+
+/* Diagonal connector */
+.connector-diagonal {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    width: 100%;
+    max-width: 500px;
+    padding: 0 20px;
+    height: 20px;
+    position: relative;
+}
+
+.d-line {
+    flex: 1;
+    height: 20px;
+    position: relative;
+}
+
+.left-diag::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 50%;
+    height: 100%;
+    border-right: 2px dashed rgba(123, 88, 7, 0.25);
+    border-top: 2px dashed rgba(123, 88, 7, 0.25);
+    border-radius: 0 8px 0 0;
+}
+
+.right-diag::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    border-left: 2px dashed rgba(123, 88, 7, 0.25);
+    border-top: 2px dashed rgba(123, 88, 7, 0.25);
+    border-radius: 8px 0 0 0;
+}
+
+/* ==========================================
+   RESPONSIVE
+   ========================================== */
+
+@media (max-width: 1024px) {
+    .org-level.level-2 .org-nodes-row {
+        gap: 30px !important;
+    }
+    
+    .org-node-group {
+        min-width: 160px !important;
+    }
+    
+    .connector-horizontal {
+        max-width: 450px !important;
+    }
+    
+    .connector-vertical-group {
+        gap: 30px !important;
+        max-width: 450px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .org-level.level-2 {
+        padding-top: 15px !important;
+    }
+    
+    .org-level.level-2 .org-nodes-row {
+        gap: 20px !important;
+    }
+    
+    .org-node-group {
+        min-width: 130px !important;
+    }
+    
+    .group-nodes {
+        gap: 15px !important;
+    }
+    
+    .org-level.level-3 {
+        padding-top: 20px !important;
+    }
+    
+    .org-level.level-3 .org-nodes-row {
+        gap: 25px !important;
+    }
+    
+    .card-with-frame {
+        min-width: 140px !important;
+        max-width: 170px !important;
+    }
+    
+    .card-with-frame .frame-overlay {
+        width: calc(100% + 35px);
+        height: calc(100% + 45px);
+    }
+    
+    .card-with-frame .relative.z-10 {
+        padding: 20px 16px 22px !important;
+        margin: 12px;
+        border-radius: 16px;
+        min-height: 200px !important;
+    }
+    
+    .card-with-frame .node-photo {
+        width: 60px !important;
+        height: 60px !important;
+    }
+    
+    .card-with-frame .node-name {
+        font-size: 12px;
+    }
+    
+    .card-with-frame .node-title {
+        font-size: 8px;
+        padding: 2px 8px;
+    }
+    
+    .wali-kelas-card.card-with-frame {
+        min-width: 170px !important;
+        max-width: 200px !important;
+    }
+    
+    .wali-kelas-card.card-with-frame .frame-overlay {
+        width: calc(100% + 45px);
+        height: calc(100% + 55px);
+    }
+    
+    .wali-kelas-card.card-with-frame .relative.z-10 {
+        padding: 24px 20px 26px !important;
+        margin: 16px;
+        min-height: 240px !important;
+    }
+    
+    .wali-kelas-card.card-with-frame .node-photo {
+        width: 75px !important;
+        height: 75px !important;
+    }
+    
+    .wali-kelas-card.card-with-frame .node-name {
+        font-size: 15px;
+    }
+    
+    .connector-horizontal {
+        max-width: 300px !important;
+    }
+    
+    .connector-vertical-group {
+        gap: 20px !important;
+        max-width: 300px !important;
+    }
+    
+    .org-connector.complex {
+        padding: 10px 0 !important;
+    }
+    
+    .org-connector.vertical {
+        padding: 10px 0 !important;
+    }
+    
+    .connector-line {
+        height: 25px !important;
+    }
+    
+    .org-nodes-row {
+        gap: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .org-level.level-2 {
+        padding-top: 10px !important;
+    }
+    
+    .org-level.level-2 .org-nodes-row {
+        gap: 12px !important;
+    }
+    
+    .org-node-group {
+        min-width: 90px !important;
+    }
+    
+    .group-nodes {
+        gap: 10px !important;
+    }
+    
+    .org-level.level-3 {
+        padding-top: 15px !important;
+    }
+    
+    .org-level.level-3 .org-nodes-row {
+        gap: 15px !important;
+    }
+    
+    .card-with-frame {
+        min-width: 110px !important;
+        max-width: 130px !important;
+    }
+    
+    .card-with-frame .frame-overlay {
+        width: calc(100% + 25px);
+        height: calc(100% + 35px);
+    }
+    
+    .card-with-frame .relative.z-10 {
+        padding: 14px 10px 16px !important;
+        margin: 8px;
+        border-radius: 12px;
+        min-height: 160px !important;
+    }
+    
+    .card-with-frame .node-photo {
+        width: 48px !important;
+        height: 48px !important;
+    }
+    
+    .card-with-frame .node-name {
+        font-size: 10px;
+    }
+    
+    .card-with-frame .node-title {
+        font-size: 7px;
+        padding: 1px 6px;
+    }
+    
+    .card-with-frame .node-badge {
+        font-size: 6px;
+    }
+    
+    .wali-kelas-card.card-with-frame {
+        min-width: 130px !important;
+        max-width: 150px !important;
+    }
+    
+    .wali-kelas-card.card-with-frame .frame-overlay {
+        width: calc(100% + 30px);
+        height: calc(100% + 40px);
+    }
+    
+    .wali-kelas-card.card-with-frame .relative.z-10 {
+        padding: 16px 14px 18px !important;
+        margin: 10px;
+        min-height: 180px !important;
+    }
+    
+    .wali-kelas-card.card-with-frame .node-photo {
+        width: 56px !important;
+        height: 56px !important;
+    }
+    
+    .wali-kelas-card.card-with-frame .node-name {
+        font-size: 12px;
+    }
+    
+    .connector-horizontal {
+        max-width: 180px !important;
+    }
+    
+    .connector-vertical-group {
+        gap: 12px !important;
+        max-width: 180px !important;
+    }
+    
+    .org-connector.complex {
+        padding: 5px 0 !important;
+    }
+    
+    .org-connector.vertical {
+        padding: 5px 0 !important;
+    }
+    
+    .connector-line {
+        height: 18px !important;
+    }
+    
+    .org-nodes-row {
+        gap: 10px;
+    }
+    
+    .org-node-group {
+        min-width: 80px;
+    }
+    
+    .group-nodes {
+        gap: 8px;
+    }
+}
+
+/* ============================================
+   SWIPER 3D PANORAMA GALLERY
+   ============================================ */
+
+.gallery-swiper-panorama {
+    padding: 10px 0 !important;
+    overflow: visible !important;
+}
+
+.gallery-swiper-panorama .swiper-slide {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: auto !important;
+    transition: all 0.3s ease;
+}
+
+.gallery-swiper-panorama .swiper-slide .group {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    transform-origin: center center;
+}
+
+/* Navigation Buttons - 3D Panorama Style */
+.gallery-swiper-panorama .swiper-button-prev-custom,
+.gallery-swiper-panorama .swiper-button-next-custom {
+    width: 44px !important;
+    height: 44px !important;
+    background: rgba(34, 31, 27, 0.8) !important;
+    backdrop-filter: blur(12px) !important;
+    border-radius: 50% !important;
+    color: #fdcd76 !important;
+    border: 1px solid rgba(253, 205, 118, 0.25) !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.gallery-swiper-panorama .swiper-button-prev-custom:hover,
+.gallery-swiper-panorama .swiper-button-next-custom:hover {
+    background: rgba(34, 31, 27, 0.95) !important;
+    transform: scale(1.1) !important;
+    border-color: rgba(253, 205, 118, 0.6) !important;
+}
+
+.gallery-swiper-panorama .swiper-button-prev-custom::after,
+.gallery-swiper-panorama .swiper-button-next-custom::after {
+    display: none !important;
+}
+
+/* Pagination - 3D Style */
+.gallery-swiper-panorama .swiper-pagination-custom {
+    position: relative !important;
+    margin-top: 20px !important;
+    display: flex !important;
+    justify-content: center !important;
+    gap: 10px !important;
+}
+
+.gallery-swiper-panorama .swiper-pagination-custom .swiper-pagination-bullet {
+    width: 10px !important;
+    height: 10px !important;
+    background: rgba(213, 205, 194, 0.6) !important;
+    opacity: 0.6 !important;
+    transition: all 0.4s ease !important;
+    border-radius: 50% !important;
+    margin: 0 !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.gallery-swiper-panorama .swiper-pagination-custom .swiper-pagination-bullet-active {
+    background: #7b5807 !important;
+    opacity: 1 !important;
+    width: 30px !important;
+    border-radius: 5px !important;
+    box-shadow: 0 2px 10px rgba(123, 88, 7, 0.3) !important;
+}
+
+/* 3D Coverflow Shadow Effect */
+.gallery-swiper-panorama .swiper-slide-shadow-left,
+.gallery-swiper-panorama .swiper-slide-shadow-right {
+    border-radius: 16px !important;
+}
+
+/* Responsive Swiper */
+@media (max-width: 640px) {
+    .gallery-swiper-panorama .swiper-button-prev-custom,
+    .gallery-swiper-panorama .swiper-button-next-custom {
+        width: 32px !important;
+        height: 32px !important;
+    }
+    
+    .gallery-swiper-panorama .swiper-button-prev-custom .material-symbols-outlined,
+    .gallery-swiper-panorama .swiper-button-next-custom .material-symbols-outlined {
+        font-size: 16px !important;
+    }
+    
+    .gallery-swiper-panorama .swiper-pagination-custom .swiper-pagination-bullet {
+        width: 8px !important;
+        height: 8px !important;
+    }
+    
+    .gallery-swiper-panorama .swiper-pagination-custom .swiper-pagination-bullet-active {
+        width: 20px !important;
+    }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+    .gallery-swiper-panorama .swiper-button-prev-custom,
+    .gallery-swiper-panorama .swiper-button-next-custom {
+        width: 38px !important;
+        height: 38px !important;
+    }
+}
+
+/* ============================================
+   SWIPER GALLERY - FIXED NO OVERFLOW
+   ============================================ */
+
+.gallery-swiper {
+    padding: 10px 0 !important;
+    overflow: visible !important;
+}
+
+.gallery-swiper .swiper-slide {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: auto !important;
+}
+
+.gallery-swiper .swiper-slide .group {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+/* Navigation Buttons */
+.swiper-button-prev-custom,
+.swiper-button-next-custom {
+    width: 36px !important;
+    height: 36px !important;
+    background: rgba(34, 31, 27, 0.85) !important;
+    backdrop-filter: blur(8px) !important;
+    border-radius: 50% !important;
+    color: #fdcd76 !important;
+    border: 1px solid rgba(253, 205, 118, 0.2) !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.swiper-button-prev-custom:hover,
+.swiper-button-next-custom:hover {
+    background: rgba(34, 31, 27, 0.95) !important;
+    transform: scale(1.05) !important;
+    border-color: rgba(253, 205, 118, 0.5) !important;
+}
+
+.swiper-button-prev-custom::after,
+.swiper-button-next-custom::after {
+    display: none !important;
+}
+
+/* Pagination */
+.swiper-pagination-custom {
+    position: relative !important;
+    margin-top: 16px !important;
+    display: flex !important;
+    justify-content: center !important;
+    gap: 8px !important;
+}
+
+.swiper-pagination-custom .swiper-pagination-bullet {
+    width: 8px !important;
+    height: 8px !important;
+    background: #d5cdc2 !important;
+    opacity: 0.5 !important;
+    transition: all 0.3s ease !important;
+    border-radius: 50% !important;
+    margin: 0 !important;
+}
+
+.swiper-pagination-custom .swiper-pagination-bullet-active {
+    background: #7b5807 !important;
+    opacity: 1 !important;
+    width: 24px !important;
+    border-radius: 4px !important;
+}
+
+/* Responsive Swiper */
+@media (max-width: 640px) {
+    .swiper-button-prev-custom,
+    .swiper-button-next-custom {
+        width: 28px !important;
+        height: 28px !important;
+    }
+    
+    .swiper-button-prev-custom .material-symbols-outlined,
+    .swiper-button-next-custom .material-symbols-outlined {
+        font-size: 16px !important;
+    }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+    .swiper-button-prev-custom,
+    .swiper-button-next-custom {
+        width: 32px !important;
+        height: 32px !important;
+    }
+}
