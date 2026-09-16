@@ -30,10 +30,10 @@ import KrakenSmash from '../components/KrakenSmash';
 // ============================================
 // KOMPONEN SCROLL REVEAL (Animasi saat scroll)
 // ============================================
-const ScrollReveal = ({ 
-    children, 
-    animation = 'fade-up', 
-    delay = 0, 
+const ScrollReveal = ({
+    children,
+    animation = 'fade-up',
+    delay = 0,
     duration = 800,
     threshold = 0.15,
     className = '',
@@ -50,7 +50,7 @@ const ScrollReveal = ({
                     observer.disconnect();
                 }
             },
-            { 
+            {
                 threshold,
                 rootMargin: '0px 0px -50px 0px'
             }
@@ -83,8 +83,8 @@ const ScrollReveal = ({
             case 'zoom-out':
                 return { ...base, transform: isVisible ? 'scale(1)' : 'scale(1.08)' };
             case 'flip-up':
-                return { 
-                    ...base, 
+                return {
+                    ...base,
                     transform: isVisible ? 'perspective(1000px) rotateX(0deg)' : 'perspective(1000px) rotateX(20deg)',
                     transformOrigin: 'center bottom',
                 };
@@ -98,6 +98,181 @@ const ScrollReveal = ({
         <Tag ref={ref} className={className} style={getAnimationStyle()}>
             {children}
         </Tag>
+    );
+};
+
+// ============================================
+// KOMPONEN SCROLL INDICATOR (Dot Vertikal di Kanan)
+// ============================================
+const ScrollIndicator = () => {
+    const [activeSection, setActiveSection] = useState('home');
+    const [isVisible, setIsVisible] = useState(false);
+
+    const sections = [
+        { id: 'home', label: 'Beranda', icon: 'home' },
+        { id: 'struktur-wrapper', label: 'Struktur', icon: 'account_tree' },
+        { id: 'murid', label: 'Daftar Murid', icon: 'groups' },
+        { id: 'projects', label: 'Projects', icon: 'code' },
+        { id: 'social', label: 'Social Media', icon: 'share' },
+        { id: 'gallery', label: 'Gallery', icon: 'photo_library' },
+    ];
+
+    // Sembunyikan indicator saat di hero section
+    useEffect(() => {
+        const handleScroll = () => {
+            setIsVisible(window.scrollY > 200);
+        };
+        handleScroll();
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    // Deteksi section aktif saat scroll
+    useEffect(() => {
+        const observerOptions = {
+            root: null,
+            rootMargin: '-40% 0px -50% 0px',
+            threshold: 0,
+        };
+
+        const handleIntersect = (entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    setActiveSection(entry.target.id);
+                }
+            });
+        };
+
+        const observer = new IntersectionObserver(handleIntersect, observerOptions);
+
+        sections.forEach((section) => {
+            const el = document.getElementById(section.id);
+            if (el) observer.observe(el);
+        });
+
+        return () => observer.disconnect();
+    }, []);
+
+    const scrollToSection = (id) => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    };
+
+    return (
+        <div
+            className={`fixed right-2 xs:right-3 sm:right-4 md:right-5 lg:right-6 top-20 xs:top-24 sm:top-28 md:top-32 z-[80] transition-all duration-500 ${
+                isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8 pointer-events-none'
+            }`}
+        >
+            <div
+                className="relative flex flex-col items-center gap-1.5 xs:gap-2 sm:gap-3 py-2 xs:py-2.5 sm:py-3 px-1 xs:px-1.5 sm:px-2 rounded-full backdrop-blur-md"
+                style={{
+                    background: 'linear-gradient(180deg, rgba(30, 20, 12, 0.85) 0%, rgba(20, 12, 8, 0.85) 100%)',
+                    border: '1.5px solid rgba(212, 168, 83, 0.4)',
+                    boxShadow:
+                        '0 0 20px rgba(212, 168, 83, 0.2), inset 0 0 15px rgba(212, 168, 83, 0.08)',
+                }}
+            >
+                {/* Tali dekoratif atas */}
+                <div
+                    className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-5 xs:w-6 h-[2px] rounded-full"
+                    style={{
+                        background: 'linear-gradient(90deg, transparent, #d4a853, transparent)',
+                    }}
+                />
+
+                {/* Dots */}
+                {sections.map((section) => {
+                    const isActive = activeSection === section.id;
+                    return (
+                        <button
+                            key={section.id}
+                            onClick={() => scrollToSection(section.id)}
+                            className="group relative flex items-center justify-center transition-all duration-300 p-0.5"
+                            aria-label={`Scroll ke ${section.label}`}
+                        >
+                            {/* Tooltip Label */}
+                            <div
+                                className="absolute right-full mr-2 xs:mr-3 sm:mr-4 px-2 xs:px-2.5 sm:px-3 py-1 xs:py-1.5 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-300 pointer-events-none hidden xs:block"
+                                style={{
+                                    background:
+                                        'linear-gradient(135deg, #2e261b 0%, #1e1a15 100%)',
+                                    border: '1px solid rgba(212, 168, 83, 0.5)',
+                                    boxShadow:
+                                        '0 4px 15px rgba(0, 0, 0, 0.5), 0 0 15px rgba(212, 168, 83, 0.2)',
+                                }}
+                            >
+                                <div className="flex items-center gap-1 xs:gap-1.5">
+                                    <span
+                                        className="material-symbols-outlined text-[12px] xs:text-[13px] sm:text-[14px] md:text-[16px]"
+                                        style={{ color: '#d4a853' }}
+                                    >
+                                        {section.icon}
+                                    </span>
+                                    <span
+                                        className="font-serif text-[9px] xs:text-[10px] sm:text-xs tracking-wider uppercase font-bold"
+                                        style={{ color: '#e5be6d' }}
+                                    >
+                                        {section.label}
+                                    </span>
+                                </div>
+                                {/* Arrow pointer */}
+                                <div
+                                    className="absolute left-full top-1/2 -translate-y-1/2 w-0 h-0"
+                                    style={{
+                                        borderTop: '5px solid transparent',
+                                        borderBottom: '5px solid transparent',
+                                        borderLeft: '5px solid rgba(212, 168, 83, 0.5)',
+                                    }}
+                                />
+                            </div>
+
+                            {/* Dot */}
+                            <span
+                                className={`block rounded-full transition-all duration-500 relative ${
+                                    isActive
+                                        ? 'w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4'
+                                        : 'w-1.5 h-1.5 xs:w-2 xs:h-2 sm:w-2.5 sm:h-2.5'
+                                }`}
+                                style={{
+                                    background: isActive
+                                        ? 'radial-gradient(circle at 30% 30%, #ffe88a 0%, #ffd700 50%, #d4a853 100%)'
+                                        : 'rgba(212, 168, 83, 0.35)',
+                                    boxShadow: isActive
+                                        ? '0 0 12px rgba(255, 215, 0, 0.9), 0 0 20px rgba(255, 215, 0, 0.5), inset 0 0 5px rgba(255, 255, 255, 0.5)'
+                                        : 'none',
+                                    border: isActive
+                                        ? '1px solid rgba(255, 232, 138, 0.8)'
+                                        : '1px solid rgba(212, 168, 83, 0.5)',
+                                }}
+                            >
+                                {/* Ring berputar saat aktif */}
+                                {isActive && (
+                                    <span
+                                        className="absolute inset-[-3px] xs:inset-[-4px] rounded-full border animate-[spin_4s_linear_infinite]"
+                                        style={{
+                                            borderColor: 'rgba(212, 168, 83, 0.6)',
+                                            borderTopColor: 'transparent',
+                                            borderLeftColor: 'transparent',
+                                        }}
+                                    />
+                                )}
+                            </span>
+                        </button>
+                    );
+                })}
+
+                {/* Tali dekoratif bawah */}
+                <div
+                    className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-5 xs:w-6 h-[2px] rounded-full"
+                    style={{
+                        background: 'linear-gradient(90deg, transparent, #d4a853, transparent)',
+                    }}
+                />
+            </div>
+        </div>
     );
 };
 
@@ -288,7 +463,7 @@ const FloatingGameButton = ({ onClick }) => {
     return (
         <button
             onClick={onClick}
-            className="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-[90] group cursor-pointer"
+            className="fixed bottom-4 right-4 xs:bottom-5 xs:right-5 sm:bottom-6 sm:right-6 md:bottom-8 md:right-8 z-[90] group cursor-pointer"
             aria-label="Buka Mini Games"
         >
             <div
@@ -317,7 +492,7 @@ const FloatingGameButton = ({ onClick }) => {
                     borderLeftColor: 'transparent',
                 }}
             />
-            <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center">
+            <div className="relative w-14 h-14 xs:w-16 xs:h-16 sm:w-16 sm:h-16 md:w-20 md:h-20 flex items-center justify-center">
                 <div
                     className="absolute inset-0 rounded-full"
                     style={{
@@ -332,7 +507,7 @@ const FloatingGameButton = ({ onClick }) => {
                     style={{ filter: 'drop-shadow(0 0 10px rgba(255, 215, 0, 0.8))' }}
                 />
             </div>
-            <div className="absolute bottom-full right-0 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap">
+            <div className="absolute bottom-full right-0 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap hidden sm:block">
                 <div
                     className="px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide"
                     style={{
@@ -1177,7 +1352,7 @@ const PengurusModal = ({ isOpen, onClose, data, type }) => {
                         </div>
 
                         {!isWaliKelas && (
-                            <div className="flex items-center gap-3 mt-1">
+                            <div className="flex items-center gap-3 mt-1 flex-wrap justify-center max-w-[280px]">
                                 <a
                                     href={data.instagram || '#'}
                                     target="_blank"
@@ -1187,6 +1362,31 @@ const PengurusModal = ({ isOpen, onClose, data, type }) => {
                                 >
                                     <i className="fab fa-instagram text-lg"></i>
                                 </a>
+
+                                {data.tiktok && (
+                                    <a
+                                        href={data.tiktok}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg border border-white/20"
+                                        style={{ boxShadow: '0 0 15px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1)' }}
+                                        title="TikTok"
+                                    >
+                                        <i className="fab fa-tiktok text-lg"></i>
+                                    </a>
+                                )}
+
+                                {data.linkedin && (
+                                    <a
+                                        href={data.linkedin}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="w-10 h-10 rounded-full bg-[#0A66C2] text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
+                                        title="LinkedIn"
+                                    >
+                                        <i className="fab fa-linkedin-in text-lg"></i>
+                                    </a>
+                                )}
 
                                 {data.github && (
                                     <a
@@ -1212,31 +1412,16 @@ const PengurusModal = ({ isOpen, onClose, data, type }) => {
                                     </a>
                                 )}
 
-                                {data.linkedin && (
-                                <a
-                                    href={data.linkedin}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="w-10 h-10 rounded-full bg-[#0A66C2] text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
-                                    title="LinkedIn"
-                                >
-                                    <i className="fab fa-linkedin-in text-lg"></i>
-                                </a>
-                                )}
-
-                                {data.tiktok && (
-                                <a
-                                    href={data.tiktok}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg border border-white/20"
-                                    style={{
-                                        boxShadow: '0 0 15px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1)',
-                                    }}
-                                    title="TikTok"
-                                >
-                                    <i className="fab fa-tiktok text-lg"></i>
-                                </a>
+                                {data.steam && (
+                                    <a
+                                        href={data.steam}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="w-10 h-10 rounded-full bg-[#1b2838] text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
+                                        title="Steam"
+                                    >
+                                        <i className="fab fa-steam text-lg"></i>
+                                    </a>
                                 )}
                             </div>
                         )}
@@ -1298,7 +1483,7 @@ const MuridModal = ({ isOpen, onClose, data }) => {
                             {data.nama}
                         </h3>
 
-                        <div className="flex items-center gap-3 mt-2">
+                        <div className="flex items-center gap-3 mt-2 flex-wrap justify-center max-w-[280px]">
                             {data.instagram && (
                                 <a
                                     href={data.instagram}
@@ -1310,39 +1495,20 @@ const MuridModal = ({ isOpen, onClose, data }) => {
                                     <i className="fab fa-instagram text-lg"></i>
                                 </a>
                             )}
-                            {data.github && (
+
+                            {data.tiktok && (
                                 <a
-                                    href={data.github}
+                                    href={data.tiktok}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="w-10 h-10 rounded-full bg-[#333] text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
-                                    title="GitHub"
+                                    className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg border border-white/20"
+                                    style={{ boxShadow: '0 0 15px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1)' }}
+                                    title="TikTok"
                                 >
-                                    <i className="fab fa-github text-lg"></i>
+                                    <i className="fab fa-tiktok text-lg"></i>
                                 </a>
                             )}
-                            {data.youtube && (
-                                <a
-                                    href={data.youtube}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="w-10 h-10 rounded-full bg-red-600 text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
-                                    title="YouTube"
-                                >
-                                    <i className="fab fa-youtube text-lg"></i>
-                                </a>
-                            )}
-                            {data.steam && (
-                                <a
-                                    href={data.steam}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="w-10 h-10 rounded-full bg-[#1b2838] text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
-                                    title="Steam"
-                                >
-                                    <i className="fab fa-steam text-lg"></i>
-                                </a>
-                            )}
+
                             {data.linkedin && (
                                 <a
                                     href={data.linkedin}
@@ -1354,18 +1520,40 @@ const MuridModal = ({ isOpen, onClose, data }) => {
                                     <i className="fab fa-linkedin-in text-lg"></i>
                                 </a>
                             )}
-                            {data.tiktok && (
+
+                            {data.github && (
                                 <a
-                                    href={data.tiktok}
+                                    href={data.github}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg border border-white/20"
-                                    style={{
-                                        boxShadow: '0 0 15px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1)',
-                                    }}
-                                    title="TikTok"
+                                    className="w-10 h-10 rounded-full bg-[#333] text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
+                                    title="GitHub"
                                 >
-                                    <i className="fab fa-tiktok text-lg"></i>
+                                    <i className="fab fa-github text-lg"></i>
+                                </a>
+                            )}
+
+                            {data.youtube && (
+                                <a
+                                    href={data.youtube}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="w-10 h-10 rounded-full bg-red-600 text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
+                                    title="YouTube"
+                                >
+                                    <i className="fab fa-youtube text-lg"></i>
+                                </a>
+                            )}
+
+                            {data.steam && (
+                                <a
+                                    href={data.steam}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="w-10 h-10 rounded-full bg-[#1b2838] text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
+                                    title="Steam"
+                                >
+                                    <i className="fab fa-steam text-lg"></i>
                                 </a>
                             )}
                         </div>
@@ -1448,6 +1636,152 @@ const GalleryModal = ({ isOpen, onClose, data }) => {
                         {data.deskripsi}
                     </h3>
                 </div>
+            </div>
+        </div>
+    );
+};
+
+// ============================================
+// KOMPONEN GALERI SWIPER DENGAN PROGRESS ANGKA
+// ============================================
+const GallerySwiper = ({ galleryData, openGalleryModal, LazyImage }) => {
+    const [activeIndex, setActiveIndex] = useState(0);
+    const swiperRef = useRef(null);
+
+    const totalSlides = galleryData.length;
+
+    const handlePrev = () => {
+        if (swiperRef.current) {
+            swiperRef.current.slidePrev();
+        }
+    };
+
+    const handleNext = () => {
+        if (swiperRef.current) {
+            swiperRef.current.slideNext();
+        }
+    };
+
+    const handleSlideChange = (swiper) => {
+        setActiveIndex(swiper.realIndex);
+    };
+
+    return (
+        <div className="relative w-full overflow-hidden">
+            {/* Swiper Slider */}
+            <Swiper
+                modules={[Navigation, Pagination, Virtual, Autoplay, EffectCoverflow]}
+                onSwiper={(swiper) => { swiperRef.current = swiper; }}
+                onSlideChange={handleSlideChange}
+                effect="coverflow"
+                coverflowEffect={{
+                    rotate: 45,
+                    stretch: 0,
+                    depth: 200,
+                    modifier: 1,
+                    slideShadows: true,
+                }}
+                grabCursor={true}
+                centeredSlides={true}
+                slidesPerView="auto"
+                spaceBetween={0}
+                autoplay={{
+                    delay: 4000,
+                    disableOnInteraction: false,
+                    pauseOnMouseEnter: true,
+                }}
+                loop={true}
+                className="gallery-swiper-panorama"
+                breakpoints={{
+                    320: { slidesPerView: 1.1, spaceBetween: 0 },
+                    480: { slidesPerView: 1.3, spaceBetween: 0 },
+                    640: { slidesPerView: 1.8, spaceBetween: 0 },
+                    768: { slidesPerView: 2.2, spaceBetween: 0 },
+                    1024: { slidesPerView: 2.8, spaceBetween: 0 },
+                    1280: { slidesPerView: 3.2, spaceBetween: 0 }
+                }}
+            >
+                {galleryData.map((item, index) => (
+                    <SwiperSlide key={item.id} virtualIndex={index}>
+                        <div
+                            className="group relative bg-surface-container rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 mx-2 cursor-pointer"
+                            onClick={() => openGalleryModal(item)}
+                        >
+                            <div className="relative h-56 md:h-64 w-full overflow-hidden bg-surface-container-high">
+                                <LazyImage
+                                    src={item.foto}
+                                    alt={item.judul}
+                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                    loading="lazy"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-transparent to-transparent"></div>
+                                <div className="absolute bottom-3 left-3 right-3 text-on-primary">
+                                    <span className="font-label-nav-coordinates text-label-nav-coordinates text-secondary-fixed uppercase tracking-wider block text-[10px]">
+                                        {item.judul}
+                                    </span>
+                                    <h3 className="font-headline-sm text-headline-sm font-bold text-surface-bright text-sm">
+                                        {item.deskripsi}
+                                    </h3>
+                                </div>
+                            </div>
+                            <div className="p-3 flex items-center justify-between bg-surface-container-low">
+                                <img
+                                    src="/images/assets/galery-logo.png"
+                                    alt="Gallery Logo"
+                                    className="w-15 h-10 object-contain drop-shadow-md"
+                                />
+                                <span className="font-headline-sm text-label-nav-coordinates text-secondary-fixed uppercase tracking-wider block text-[10px]">
+                                    XII RPL B 23'
+                                </span>
+                            </div>
+                        </div>
+                    </SwiperSlide>
+                ))}
+            </Swiper>
+
+            {/* ============================================ */}
+            {/* NAVIGATION CONTROL - PREV | COUNTER | NEXT */}
+            {/* ============================================ */}
+            <div className="mt-6 sm:mt-8 flex items-center justify-center gap-3 sm:gap-4 md:gap-6">
+                {/* Tombol Prev */}
+                <button
+                    onClick={handlePrev}
+                    aria-label="Gambar Sebelumnya"
+                    className="group flex-shrink-0 w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full bg-primary-container/90 hover:bg-primary-container text-secondary-container flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm border border-secondary/20 hover:scale-110 active:scale-95"
+                >
+                    <span className="material-symbols-outlined text-xl sm:text-2xl md:text-3xl group-hover:-translate-x-0.5 transition-transform">
+                        chevron_left
+                    </span>
+                </button>
+
+                {/* Counter Angka */}
+                <div
+                    className="flex items-center gap-1 sm:gap-1.5 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-primary-container/90 backdrop-blur-sm border border-secondary/20 shadow-lg min-w-[80px] sm:min-w-[100px] md:min-w-[120px] justify-center"
+                >
+                    <span
+                        className="font-headline-sm text-lg sm:text-xl md:text-2xl font-bold text-secondary-fixed tabular-nums"
+                        style={{ textShadow: '0 0 10px rgba(212, 168, 83, 0.3)' }}
+                    >
+                        {activeIndex + 1}
+                    </span>
+                    <span className="text-secondary-fixed/60 text-lg sm:text-xl md:text-2xl font-bold">
+                        /
+                    </span>
+                    <span className="text-secondary-fixed/60 text-sm sm:text-base md:text-lg font-bold tabular-nums">
+                        {totalSlides}
+                    </span>
+                </div>
+
+                {/* Tombol Next */}
+                <button
+                    onClick={handleNext}
+                    aria-label="Gambar Selanjutnya"
+                    className="group flex-shrink-0 w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full bg-primary-container/90 hover:bg-primary-container text-secondary-container flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm border border-secondary/20 hover:scale-110 active:scale-95"
+                >
+                    <span className="material-symbols-outlined text-xl sm:text-2xl md:text-3xl group-hover:translate-x-0.5 transition-transform">
+                        chevron_right
+                    </span>
+                </button>
             </div>
         </div>
     );
@@ -1918,6 +2252,9 @@ const Home = () => {
                 duration={10000}
             />
 
+            {/* Scroll Indicator */}
+            <ScrollIndicator />
+
             {/* ============================================ */}
             {/* HERO SECTION */}
             {/* ============================================ */}
@@ -1999,9 +2336,9 @@ const Home = () => {
                 <ScrollReveal animation="fade-up" duration={800}>
                     <div className="w-full py-4 px-gutter-mobile lg:px-gutter-desktop bg-surface-container-low/70 border-b border-outline-variant/30">
                         <div className="max-w-[1280px] mx-auto">
-                            <h2 className="font-headline-lg text-headline-lg text-primary tracking-tight">Struktur Kelas RPL B 23'</h2>
+                            <h2 className="font-headline-lg text-headline-lg text-primary tracking-tight">Struktur Kelas XII RPL B 23'</h2>
                             <p className="font-body-md text-body-md text-on-surface-variant">
-                                Hierarki kelas RPL B 23'
+                                Hierarki kelas XII RPL B 23'
                             </p>
                         </div>
                     </div>
@@ -2438,7 +2775,7 @@ const Home = () => {
                             <div className="flex flex-col gap-space-2xs max-w-2xl">
                                 <h2 className="font-headline-lg text-headline-lg text-primary tracking-tight">Wall of Projects</h2>
                                 <p className="font-body-lg text-body-lg text-on-surface-variant">
-                                    Koleksi karya terbaik dari awak kapal XI RPL B
+                                    Koleksi karya terbaik dari murid XII RPL B 23'
                                 </p>
                             </div>
                         </div>
@@ -2599,96 +2936,17 @@ const Home = () => {
                     <ScrollReveal animation="fade-up" duration={800}>
                         <div className="flex flex-col md:flex-row md:items-end justify-between gap-space-lg">
                             <div className="flex flex-col gap-space-2xs max-w-2xl">
-                                <h2 className="font-headline-lg text-headline-lg text-primary tracking-tight">Galeri Kenangan RPL B '23'</h2>
+                                <h2 className="font-headline-lg text-headline-lg text-primary tracking-tight">Galeri Kenangan XII RPL B 23'</h2>
                             </div>
                         </div>
                     </ScrollReveal>
 
                     <ScrollReveal animation="zoom-in" delay={100} duration={900}>
-                        <div className="relative w-full overflow-hidden py-4">
-                            <Swiper
-                                modules={[Navigation, Pagination, Virtual, Autoplay, EffectCoverflow]}
-                                effect="coverflow"
-                                coverflowEffect={{
-                                    rotate: 45,
-                                    stretch: 0,
-                                    depth: 200,
-                                    modifier: 1,
-                                    slideShadows: true,
-                                }}
-                                grabCursor={true}
-                                centeredSlides={true}
-                                slidesPerView="auto"
-                                spaceBetween={0}
-                                navigation={{
-                                    nextEl: '.swiper-button-next-custom',
-                                    prevEl: '.swiper-button-prev-custom',
-                                }}
-                                pagination={{
-                                    clickable: true,
-                                    el: '.swiper-pagination-custom',
-                                }}
-                                autoplay={{
-                                    delay: 4000,
-                                    disableOnInteraction: false,
-                                    pauseOnMouseEnter: true,
-                                }}
-                                loop={true}
-                                className="gallery-swiper-panorama"
-                                breakpoints={{
-                                    320: { slidesPerView: 1.1, spaceBetween: 0 },
-                                    480: { slidesPerView: 1.3, spaceBetween: 0 },
-                                    640: { slidesPerView: 1.8, spaceBetween: 0 },
-                                    768: { slidesPerView: 2.2, spaceBetween: 0 },
-                                    1024: { slidesPerView: 2.8, spaceBetween: 0 },
-                                    1280: { slidesPerView: 3.2, spaceBetween: 0 }
-                                }}
-                            >
-                                {galleryData.map((item, index) => (
-                                    <SwiperSlide key={item.id} virtualIndex={index}>
-                                        <div
-                                            className="group relative bg-surface-container rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 mx-2 cursor-pointer"
-                                            onClick={() => openGalleryModal(item)}
-                                        >
-                                            <div className="relative h-56 md:h-64 w-full overflow-hidden bg-surface-container-high">
-                                                <LazyImage
-                                                    src={item.foto}
-                                                    alt={item.judul}
-                                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                                    loading="lazy"
-                                                />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-transparent to-transparent"></div>
-                                                <div className="absolute bottom-3 left-3 right-3 text-on-primary">
-                                                    <span className="font-label-nav-coordinates text-label-nav-coordinates text-secondary-fixed uppercase tracking-wider block text-[10px]">
-                                                        {item.judul}
-                                                    </span>
-                                                    <h3 className="font-headline-sm text-headline-sm font-bold text-surface-bright text-sm">
-                                                        {item.deskripsi}
-                                                    </h3>
-                                                </div>
-                                            </div>
-                                            <div className="p-3 flex items-center justify-between bg-surface-container-low">
-                                                <img
-                                                    src="/images/assets/galery-logo.png"
-                                                    alt="Gallery Logo"
-                                                    className="w-15 h-10 object-contain drop-shadow-md"
-                                                />
-                                                <span className="font-headline-sm text-label-nav-coordinates text-secondary-fixed uppercase tracking-wider block text-[10px]" >XII RPL B 23'</span>
-                                            </div>
-                                        </div>
-                                    </SwiperSlide>
-                                ))}
-                            </Swiper>
-
-                            <button className="swiper-button-prev-custom absolute left-2 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-primary-container/80 hover:bg-primary-container text-secondary-container flex items-center justify-center shadow-lg transition-all backdrop-blur-sm">
-                                <span className="material-symbols-outlined text-xl">chevron_left</span>
-                            </button>
-                            <button className="swiper-button-next-custom absolute right-2 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-primary-container/80 hover:bg-primary-container text-secondary-container flex items-center justify-center shadow-lg transition-all backdrop-blur-sm">
-                                <span className="material-symbols-outlined text-xl">chevron_right</span>
-                            </button>
-
-                            <div className="swiper-pagination-custom flex justify-center gap-2 mt-4"></div>
-                        </div>
+                        <GallerySwiper
+                            galleryData={galleryData}
+                            openGalleryModal={openGalleryModal}
+                            LazyImage={LazyImage}
+                        />
                     </ScrollReveal>
                 </div>
             </section>

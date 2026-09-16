@@ -38,7 +38,7 @@ const Footer = () => {
                                 letterSpacing: '2px',
                             }}
                         >
-                            Kelas XII RPL B
+                            Kelas XII RPL B 23'
                         </h3>
 
                         {/* Motto */}
@@ -146,7 +146,7 @@ const Footer = () => {
                             textShadow: '0 1px 2px rgba(0, 0, 0, 0.8)',
                         }}
                     >
-                        &copy; 2024-2027 Kelas XII RPL B. Barudak Bageur.
+                        &copy; 2024-2027 Kelas XII RPL B 23'. Barudak Bageur.
                     </p>
                 </div>
             </div>
