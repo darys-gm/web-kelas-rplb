@@ -143,7 +143,8 @@ const Navbar = () => {
                         onClick={() => scrollToSection('home')}
                     >
                         <div className="relative">
-                            <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-[#d4a853]/30 to-[#d4a853]/10 border-2 border-[#d4a853]/40 flex items-center justify-center overflow-hidden group-hover:border-[#d4a853] group-hover:shadow-lg group-hover:shadow-[#d4a853]/20 transition-all duration-300">
+                            {/* 🔥 Logo diperbesar di mobile */}
+                            <div className="w-11 h-11 xs:w-12 xs:h-12 sm:w-12 sm:h-12 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-[#d4a853]/30 to-[#d4a853]/10 border-2 border-[#d4a853]/40 flex items-center justify-center overflow-hidden group-hover:border-[#d4a853] group-hover:shadow-lg group-hover:shadow-[#d4a853]/20 transition-all duration-300">
                                 <img
                                     src="/images/logo-kelas.webp"
                                     alt="Logo"
@@ -152,7 +153,11 @@ const Navbar = () => {
                             </div>
                         </div>
                         <div className="flex flex-col">
-                            <span className="font-display-hero text-[#d4a853] !text-[9px] xs:!text-[10px] sm:!text-xs md:!text-sm lg:!text-base tracking-wider font-bold leading-tight whitespace-nowrap">
+                            {/* 🔥 Ukuran text brand diperkecil khusus mobile */}
+                            <span
+                                className="font-display-hero text-[#d4a853] tracking-wider font-bold leading-tight whitespace-nowrap"
+                                style={{ fontSize: 'clamp(12px, 2.4vw, 16px)' }}
+                            >
                                 XII RPL B 23'
                             </span>
                         </div>
@@ -214,8 +219,8 @@ const Navbar = () => {
                                 ref={(el) => (navRefs.current[item.id] = el)}
                                 onClick={() => scrollToSection(item.id)}
                                 className={`relative px-2.5 xl:px-3.5 py-1.5 rounded-full font-label-nav-coordinates flex items-center justify-center z-10 ${activeSection === item.id
-                                        ? 'text-[#1a120e] font-semibold'
-                                        : 'text-[#d4a853] hover:text-[#e8c060]'
+                                    ? 'text-[#1a120e] font-semibold'
+                                    : 'text-[#d4a853] hover:text-[#e8c060]'
                                     }`}
                                 style={{
                                     transition: 'color 400ms cubic-bezier(0.25, 1, 0.5, 1)',
@@ -250,8 +255,8 @@ const Navbar = () => {
                                 key={item.id}
                                 onClick={() => scrollToSection(item.id)}
                                 className={`flex items-center justify-between px-4 py-3 rounded-lg font-title-sm text-title-sm transition-all duration-300 ${activeSection === item.id
-                                        ? 'bg-gradient-to-r from-[#d4a853] to-[#b8860b] text-[#1a120e] shadow-lg font-semibold'
-                                        : 'text-[#d4a853] hover:bg-[#d4a853]/10 hover:text-[#e8c060]'
+                                    ? 'bg-gradient-to-r from-[#d4a853] to-[#b8860b] text-[#1a120e] shadow-lg font-semibold'
+                                    : 'text-[#d4a853] hover:bg-[#d4a853]/10 hover:text-[#e8c060]'
                                     }`}
                             >
                                 <span>{item.label}</span>
