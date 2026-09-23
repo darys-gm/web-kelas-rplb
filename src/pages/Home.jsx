@@ -25,6 +25,7 @@ import MemoryOfTheSea from '../components/MemoryOfTheSea';
 import PirateCodeQuest from '../components/PirateCodeQuest';
 import PieceOfTheMap from '../components/PieceOfTheMap';
 import KrakenSmash from '../components/KrakenSmash';
+import KataKataBuku from '../components/KataKataBuku';
 
 
 // ============================================
@@ -115,6 +116,7 @@ const ScrollIndicator = () => {
         { id: 'projects', label: 'Projects', icon: 'code' },
         { id: 'social', label: 'Social Media', icon: 'share' },
         { id: 'gallery', label: 'Gallery', icon: 'photo_library' },
+        { id: 'kata-kata', label: 'Kata Kata', icon: 'auto_stories' },
     ];
 
     // Sembunyikan indicator saat di hero section
@@ -162,9 +164,8 @@ const ScrollIndicator = () => {
 
     return (
         <div
-            className={`fixed right-2 xs:right-3 sm:right-4 md:right-5 lg:right-6 top-20 xs:top-24 sm:top-28 md:top-32 z-[80] transition-all duration-500 ${
-                isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8 pointer-events-none'
-            }`}
+            className={`fixed right-2 xs:right-3 sm:right-4 md:right-5 lg:right-6 top-20 xs:top-24 sm:top-28 md:top-32 z-[80] transition-all duration-500 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8 pointer-events-none'
+                }`}
         >
             <div
                 className="relative flex flex-col items-center gap-1.5 xs:gap-2 sm:gap-3 py-2 xs:py-2.5 sm:py-3 px-1 xs:px-1.5 sm:px-2 rounded-full backdrop-blur-md"
@@ -231,11 +232,10 @@ const ScrollIndicator = () => {
 
                             {/* Dot */}
                             <span
-                                className={`block rounded-full transition-all duration-500 relative ${
-                                    isActive
-                                        ? 'w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4'
-                                        : 'w-1.5 h-1.5 xs:w-2 xs:h-2 sm:w-2.5 sm:h-2.5'
-                                }`}
+                                className={`block rounded-full transition-all duration-500 relative ${isActive
+                                    ? 'w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4'
+                                    : 'w-1.5 h-1.5 xs:w-2 xs:h-2 sm:w-2.5 sm:h-2.5'
+                                    }`}
                                 style={{
                                     background: isActive
                                         ? 'radial-gradient(circle at 30% 30%, #ffe88a 0%, #ffd700 50%, #d4a853 100%)'
@@ -381,9 +381,8 @@ const LazyTikTokEmbed = ({ videoId, title, className = '' }) => {
                 {isInView && (
                     <iframe
                         src={`https://www.tiktok.com/embed/v2/${videoId}?loop=1&autoplay=0`}
-                        className={`absolute top-0 left-0 w-full h-full rounded-lg transition-opacity duration-700 ${
-                            isLoaded ? 'opacity-100' : 'opacity-0'
-                        }`}
+                        className={`absolute top-0 left-0 w-full h-full rounded-lg transition-opacity duration-700 ${isLoaded ? 'opacity-100' : 'opacity-0'
+                            }`}
                         frameBorder="0"
                         scrolling="no"
                         allowFullScreen
@@ -624,7 +623,7 @@ const GoldAuraEffect = ({ isActive, onFinish, duration = 10000 }) => {
             if (shipSoundRef.current) {
                 shipSoundRef.current.currentTime = 0;
                 shipSoundRef.current.loop = true;
-                shipSoundRef.current.play().catch(() => {});
+                shipSoundRef.current.play().catch(() => { });
             }
         }, 400);
         const shipEndTimer = setTimeout(() => {
@@ -692,9 +691,8 @@ const GoldAuraEffect = ({ isActive, onFinish, duration = 10000 }) => {
 
     return (
         <div
-            className={`fixed inset-0 z-[200] pointer-events-none overflow-hidden transition-opacity duration-700 ease-out ${
-                isFadingOut ? 'opacity-0' : 'opacity-100'
-            }`}
+            className={`fixed inset-0 z-[200] pointer-events-none overflow-hidden transition-opacity duration-700 ease-out ${isFadingOut ? 'opacity-0' : 'opacity-100'
+                }`}
         >
             <style dangerouslySetInnerHTML={{
                 __html: `
@@ -967,13 +965,13 @@ const DarkKrakenEffect = ({ isActive, onFinish, duration = 10000 }) => {
                 if (shipSoundRef.current) {
                     shipSoundRef.current.currentTime = 0;
                     shipSoundRef.current.loop = true;
-                    shipSoundRef.current.play().catch(() => {});
+                    shipSoundRef.current.play().catch(() => { });
                 }
 
                 if (krakenSoundRef.current) {
                     krakenSoundRef.current.currentTime = 0;
                     krakenSoundRef.current.loop = true;
-                    krakenSoundRef.current.play().catch(() => {});
+                    krakenSoundRef.current.play().catch(() => { });
                 }
             }, 200);
             return () => clearTimeout(timer);
@@ -1025,7 +1023,7 @@ const DarkKrakenEffect = ({ isActive, onFinish, duration = 10000 }) => {
             const audio = pool[idx];
             if (audio) {
                 audio.volume = 0.5 + Math.random() * 0.3;
-                audio.play().catch(() => {});
+                audio.play().catch(() => { });
             }
         };
 
@@ -1079,9 +1077,8 @@ const DarkKrakenEffect = ({ isActive, onFinish, duration = 10000 }) => {
 
     return (
         <div
-            className={`fixed inset-0 z-[200] pointer-events-none overflow-hidden transition-opacity duration-700 ease-out ${
-                isFadingOut ? 'opacity-0' : 'opacity-100'
-            }`}
+            className={`fixed inset-0 z-[200] pointer-events-none overflow-hidden transition-opacity duration-700 ease-out ${isFadingOut ? 'opacity-0' : 'opacity-100'
+                }`}
             style={{
                 background: 'radial-gradient(ellipse at center, rgba(5, 15, 40, 0.9) 0%, rgba(0, 0, 10, 0.98) 100%)',
             }}
@@ -1589,9 +1586,8 @@ const GalleryModal = ({ isOpen, onClose, data }) => {
 
     return (
         <div
-            className={`fixed inset-0 z-[150] flex items-center justify-center bg-black/95 backdrop-blur-md transition-opacity duration-500 ${
-                isVisible ? 'opacity-100' : 'opacity-0'
-            }`}
+            className={`fixed inset-0 z-[150] flex items-center justify-center bg-black/95 backdrop-blur-md transition-opacity duration-500 ${isVisible ? 'opacity-100' : 'opacity-0'
+                }`}
             onClick={onClose}
         >
             <button
@@ -1602,9 +1598,8 @@ const GalleryModal = ({ isOpen, onClose, data }) => {
             </button>
 
             <div
-                className={`relative flex flex-col items-center justify-center w-full h-full pt-16 sm:pt-20 pb-8 px-4 sm:px-8 transition-all duration-700 ease-out ${
-                    isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-                }`}
+                className={`relative flex flex-col items-center justify-center w-full h-full pt-16 sm:pt-20 pb-8 px-4 sm:px-8 transition-all duration-700 ease-out ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+                    }`}
                 onClick={(e) => e.stopPropagation()}
             >
                 {!isImageLoaded && (
@@ -1620,9 +1615,8 @@ const GalleryModal = ({ isOpen, onClose, data }) => {
                     <img
                         src={data.foto}
                         alt={data.deskripsi}
-                        className={`w-full h-full object-contain transition-opacity duration-500 ${
-                            isImageLoaded ? 'opacity-100' : 'opacity-0'
-                        }`}
+                        className={`w-full h-full object-contain transition-opacity duration-500 ${isImageLoaded ? 'opacity-100' : 'opacity-0'
+                            }`}
                         onLoad={() => setIsImageLoaded(true)}
                         onError={() => setIsImageLoaded(true)}
                     />
@@ -1858,14 +1852,12 @@ const MiniGamesModal = ({ isOpen, onClose }) => {
 
     return (
         <div
-            className={`fixed inset-0 z-[180] bg-black/95 backdrop-blur-md transition-opacity duration-500 overflow-y-auto ${
-                isVisible ? 'opacity-100' : 'opacity-0'
-            }`}
+            className={`fixed inset-0 z-[180] bg-black/95 backdrop-blur-md transition-opacity duration-500 overflow-y-auto ${isVisible ? 'opacity-100' : 'opacity-0'
+                }`}
         >
             <div
-                className={`relative flex flex-col items-center w-full min-h-screen py-8 sm:py-12 px-4 sm:px-6 md:px-8 transition-all duration-700 ease-out ${
-                    isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-                }`}
+                className={`relative flex flex-col items-center w-full min-h-screen py-8 sm:py-12 px-4 sm:px-6 md:px-8 transition-all duration-700 ease-out ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+                    }`}
             >
                 {activeGame === null && (
                     <>
@@ -2947,6 +2939,23 @@ const Home = () => {
                             openGalleryModal={openGalleryModal}
                             LazyImage={LazyImage}
                         />
+                    </ScrollReveal>
+                </div>
+            </section>
+
+            {/* ============================================ */}
+            {/* SECTION: KATA KATA AGIT (BUKU SKETCHBOOK) */}
+            {/* ============================================ */}
+
+            <section
+                id="kata-kata"
+                className="w-full relative"
+            /* 🔥 HAPUS py-space-xl dan px-gutter untuk menghilangkan strip */
+            >
+                {/* 🔥 HAPUS overlay bg-[#1a120e]/70 karena background sudah ada di KataKataBuku */}
+                <div className="relative z-10">
+                    <ScrollReveal animation="fade-up" duration={800}>
+                        <KataKataBuku />
                     </ScrollReveal>
                 </div>
             </section>
