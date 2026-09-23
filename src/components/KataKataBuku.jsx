@@ -5,33 +5,18 @@ import quotesData from '../data/quotes';
 // ============================================
 // KONFIGURASI
 // ============================================
-
-// 🔥 Ukuran HALAMAN buku
 const PAGE_WIDTH = 340;
 const PAGE_HEIGHT = 480;
-
-// 🔥 Ukuran GAMBAR kaca pembesar
 const GLASS_SIZE = 220;
-
-// 🔥 Ukuran LENSA zoom
 const LENS_SIZE = 110;
-
-// 🔥 Offset lensa
-const LENS_OFFSET = {
-    x: -30,
-    y: -30,
-};
-
-// 🔥 Faktor zoom
+const LENS_OFFSET = { x: -30, y: -30 };
 const MAG = 1.8;
+const INITIAL_OFFSET = { right: 250, bottom: 60 };
 
-// Posisi awal kaca
-const INITIAL_OFFSET = {
-    right: 250,
-    bottom: 60,
-};
-
-const DRAG_DELAY = 120;
+// 🔥 Zoom level untuk mobile/tablet
+const ZOOM_MIN = 0.75;
+const ZOOM_MAX = 3.0;
+const ZOOM_STEP = 0.25;
 
 // ============================================
 // HALAMAN KOSONG
@@ -236,23 +221,36 @@ const KataKataBuku = () => {
     const bookContainerRef = useRef(null);
     const zoomWrapRef = useRef(null);
     const zoomInnerRef = useRef(null);
-    const dragTimerRef = useRef(null);
-    const [currentPage, setCurrentPage] = useState(0);
+    const magnifierElRef = useRef(null);
+    const lensElRef = useRef(null);
 
+    const [currentPage, setCurrentPage] = useState(0);
     const [screenSize, setScreenSize] = useState({
         isMobile: false,
         isTablet: false,
         scale: 1,
     });
 
-    const [magnifier, setMagnifier] = useState({
-        posX: 0,
-        posY: 0,
-        isDragging: false,
-        isPressing: false,
-    });
+    // 🔥 Zoom level untuk mobile/tablet
+    const [zoomLevel, setZoomLevel] = useState(1);
+    const [isDragging, setIsDragging] = useState(false);
 
-    // 🔥 Deteksi ukuran layar
+    const magnifierPosRef = useRef({ x: 0, y: 0 });
+    const screenSizeRef = useRef({ isMobile: false, isTablet: false, scale: 1 });
+    const isDraggingRef = useRef(false);
+    const rafRef = useRef(null);
+
+    // 🔥 Cek apakah di mobile/tablet
+    const isMobileOrTablet = screenSize.isMobile || screenSize.isTablet;
+
+    // 🔥 Skala efektif = skala dasar × zoom level (hanya berlaku di mobile/tablet)
+    const effectiveScale = screenSize.scale * (isMobileOrTablet ? zoomLevel : 1);
+
+    useEffect(() => {
+        screenSizeRef.current = screenSize;
+    }, [screenSize]);
+
+    // Deteksi ukuran layar
     useEffect(() => {
         const handleResize = () => {
             const w = window.innerWidth;
@@ -260,27 +258,13 @@ const KataKataBuku = () => {
             let isTablet = false;
             let scale = 1;
 
-            // 🔥 Scale disesuaikan agar buku 2 halaman selalu muat
-            if (w <= 380) {
-                isMobile = true;
-                scale = 0.32;
-            } else if (w <= 480) {
-                isMobile = true;
-                scale = 0.4;
-            } else if (w <= 640) {
-                isMobile = true;
-                scale = 0.5;
-            } else if (w <= 768) {
-                isTablet = true;
-                scale = 0.6;
-            } else if (w <= 1024) {
-                isTablet = true;
-                scale = 0.75;
-            } else if (w <= 1280) {
-                scale = 0.85;
-            } else {
-                scale = 1;
-            }
+            if (w <= 380) { isMobile = true; scale = 0.32; }
+            else if (w <= 480) { isMobile = true; scale = 0.4; }
+            else if (w <= 640) { isMobile = true; scale = 0.5; }
+            else if (w <= 768) { isTablet = true; scale = 0.6; }
+            else if (w <= 1024) { isTablet = true; scale = 0.75; }
+            else if (w <= 1280) { scale = 0.85; }
+            else { scale = 1; }
 
             setScreenSize({ isMobile, isTablet, scale });
         };
@@ -290,64 +274,28 @@ const KataKataBuku = () => {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Set posisi awal kaca
-    useEffect(() => {
-        if (!wrapperRef.current) return;
-        const rect = wrapperRef.current.getBoundingClientRect();
-        setMagnifier((prev) => ({
-            ...prev,
-            posX: rect.width - INITIAL_OFFSET.right * screenSize.scale,
-            posY: rect.height - INITIAL_OFFSET.bottom * screenSize.scale,
-        }));
-    }, [screenSize.scale]);
+    // ============================================
+    // MAGNIFIER (Desktop only)
+    // ============================================
+    const applyMagnifierPosition = useCallback(() => {
+        if (!magnifierElRef.current || !lensElRef.current) return;
 
-    // Lock scroll
-    useEffect(() => {
-        if (magnifier.isDragging) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = '';
-        }
-        return () => {
-            document.body.style.overflow = '';
-        };
-    }, [magnifier.isDragging]);
+        const pos = magnifierPosRef.current;
+        const scale = screenSizeRef.current.scale;
 
-    const onPageChange = useCallback((e) => {
-        setCurrentPage(e.data);
-    }, []);
+        magnifierElRef.current.style.transform = 
+            `translate3d(${pos.x}px, ${pos.y}px, 0) translate(-50%, -50%) rotate(-15deg) scale(${scale})`;
 
-    const goPrev = useCallback(() => bookRef.current?.pageFlip().flipPrev(), []);
-    const goNext = useCallback(() => bookRef.current?.pageFlip().flipNext(), []);
+        const lensX = pos.x + LENS_OFFSET.x * scale;
+        const lensY = pos.y + LENS_OFFSET.y * scale;
 
-    // Clone isi buku ke dalam zoom inner
-    const syncZoomLayer = useCallback(() => {
-        const zoomInner = zoomInnerRef.current;
-        const bookContainer = bookContainerRef.current;
-        if (!zoomInner || !bookContainer) return;
+        lensElRef.current.style.transform = 
+            `translate3d(${lensX}px, ${lensY}px, 0) translate(-50%, -50%) scale(${scale})`;
 
-        zoomInner.innerHTML = '';
-        for (const child of bookContainer.children) {
-            if (child.classList && (child.classList.contains('kkb-magnifier') || child.classList.contains('kkb-lens-standalone'))) continue;
-            zoomInner.appendChild(child.cloneNode(true));
-        }
-    }, []);
-
-    useEffect(() => {
-        syncZoomLayer();
-    }, [currentPage, syncZoomLayer]);
-
-    const getLensPos = () => ({
-        x: magnifier.posX + LENS_OFFSET.x * screenSize.scale,
-        y: magnifier.posY + LENS_OFFSET.y * screenSize.scale,
-    });
-
-    // Update zoom layer
-    const placeZoom = useCallback(() => {
         const zoomWrap = zoomWrapRef.current;
         const zoomInner = zoomInnerRef.current;
         const bookContainer = bookContainerRef.current;
-        if (!zoomWrap || !zoomInner || !bookContainer) return;
+        if (!zoomWrap || !zoomInner || !bookContainer || !wrapperRef.current) return;
 
         const B = {
             w: bookContainer.clientWidth,
@@ -355,94 +303,124 @@ const KataKataBuku = () => {
         };
         if (!B.w) return;
 
-        const lensPos = getLensPos();
-        const lensRadius = (LENS_SIZE / 2) * screenSize.scale;
+        const lensRadius = (LENS_SIZE / 2) * scale;
 
         const bookRect = bookContainer.getBoundingClientRect();
         const wrapperRect = wrapperRef.current.getBoundingClientRect();
         const bookOffsetX = bookRect.left - wrapperRect.left;
         const bookOffsetY = bookRect.top - wrapperRect.top;
 
-        const lensBookX = (lensPos.x - bookOffsetX) / screenSize.scale;
-        const lensBookY = (lensPos.y - bookOffsetY) / screenSize.scale;
+        const lensBookX = (lensX - bookOffsetX) / scale;
+        const lensBookY = (lensY - bookOffsetY) / scale;
 
         const clampedBookX = Math.max(0, Math.min(lensBookX, B.w));
         const clampedBookY = Math.max(0, Math.min(lensBookY, B.h));
 
-        const mask = `radial-gradient(circle ${lensRadius}px at ${lensPos.x}px ${lensPos.y}px, #000 calc(100% - 1px), transparent 100%)`;
+        const mask = `radial-gradient(circle ${lensRadius}px at ${lensX}px ${lensY}px, #000 calc(100% - 1px), transparent 100%)`;
         zoomWrap.style.maskImage = mask;
         zoomWrap.style.webkitMaskImage = mask;
-        zoomWrap.style.opacity = magnifier.isDragging ? '1' : '0';
 
-        const translateX = lensPos.x - clampedBookX * MAG * screenSize.scale;
-        const translateY = lensPos.y - clampedBookY * MAG * screenSize.scale;
+        const translateX = lensX - clampedBookX * MAG * scale;
+        const translateY = lensY - clampedBookY * MAG * scale;
 
         zoomInner.style.width = `${B.w}px`;
         zoomInner.style.height = `${B.h}px`;
-        zoomInner.style.transformOrigin = '0 0';
-        zoomInner.style.transform = `translate(${translateX}px, ${translateY}px) scale(${MAG * screenSize.scale})`;
-    }, [magnifier.posX, magnifier.posY, magnifier.isDragging, screenSize.scale]);
+        zoomInner.style.transform = `translate3d(${translateX}px, ${translateY}px, 0) scale(${MAG * scale})`;
+    }, []);
+
+    const syncZoomLayer = useCallback(() => {
+        const zoomInner = zoomInnerRef.current;
+        const bookContainer = bookContainerRef.current;
+        if (!zoomInner || !bookContainer) return;
+
+        zoomInner.innerHTML = '';
+        for (const child of bookContainer.children) {
+            if (child.classList && (
+                child.classList.contains('kkb-magnifier') ||
+                child.classList.contains('kkb-lens-standalone')
+            )) continue;
+            zoomInner.appendChild(child.cloneNode(true));
+        }
+        applyMagnifierPosition();
+    }, [applyMagnifierPosition]);
 
     useEffect(() => {
-        placeZoom();
-    }, [placeZoom]);
+        if (isMobileOrTablet) return; // Skip sync on mobile/tablet
+        syncZoomLayer();
+    }, [currentPage, screenSize.scale, syncZoomLayer, isMobileOrTablet]);
 
-    // Cek kursor di dalam kaca
+    useEffect(() => {
+        if (isMobileOrTablet || !wrapperRef.current) return;
+        const rect = wrapperRef.current.getBoundingClientRect();
+        magnifierPosRef.current = {
+            x: rect.width - INITIAL_OFFSET.right * screenSize.scale,
+            y: rect.height - INITIAL_OFFSET.bottom * screenSize.scale,
+        };
+        applyMagnifierPosition();
+    }, [screenSize.scale, applyMagnifierPosition, isMobileOrTablet]);
+
     const isCursorInsideGlass = useCallback((clientX, clientY) => {
+        if (isMobileOrTablet) return false;
         if (!wrapperRef.current) return false;
 
         const rect = wrapperRef.current.getBoundingClientRect();
         const cursorX = clientX - rect.left;
         const cursorY = clientY - rect.top;
 
-        const dx = cursorX - magnifier.posX;
-        const dy = cursorY - magnifier.posY;
+        const dx = cursorX - magnifierPosRef.current.x;
+        const dy = cursorY - magnifierPosRef.current.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
-        const glassRadius = (GLASS_SIZE / 2) * screenSize.scale;
-
+        const glassRadius = (GLASS_SIZE / 2) * screenSizeRef.current.scale;
         return distance <= glassRadius;
-    }, [magnifier.posX, magnifier.posY, screenSize.scale]);
+    }, [isMobileOrTablet]);
 
-    // 🔥 Menggunakan POINTER EVENTS (works for both mouse & touch)
     const handlePointerDown = useCallback((e) => {
+        if (isMobileOrTablet) return; // Magnifier disabled
         if (!wrapperRef.current) return;
+        if (!isCursorInsideGlass(e.clientX, e.clientY)) return;
 
-        if (isCursorInsideGlass(e.clientX, e.clientY)) {
-            e.stopPropagation();
-            e.preventDefault();
+        e.stopPropagation();
+        e.preventDefault();
 
-            setMagnifier((prev) => ({ ...prev, isPressing: true }));
-
-            dragTimerRef.current = setTimeout(() => {
-                setMagnifier((prev) => ({ ...prev, isDragging: true }));
-            }, DRAG_DELAY);
+        if (e.target.setPointerCapture) {
+            try { e.target.setPointerCapture(e.pointerId); } catch (_) {}
         }
-    }, [isCursorInsideGlass]);
+
+        isDraggingRef.current = true;
+        setIsDragging(true);
+    }, [isCursorInsideGlass, isMobileOrTablet]);
 
     const handlePointerMove = useCallback((e) => {
+        if (isMobileOrTablet) return;
+        if (!isDraggingRef.current) return;
         if (!wrapperRef.current) return;
-        if (!magnifier.isDragging) return;
 
         e.stopPropagation();
 
         const rect = wrapperRef.current.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+        magnifierPosRef.current = {
+            x: e.clientX - rect.left,
+            y: e.clientY - rect.top,
+        };
 
-        setMagnifier((prev) => ({ ...prev, posX: x, posY: y }));
-    }, [magnifier.isDragging]);
+        if (rafRef.current === null) {
+            rafRef.current = requestAnimationFrame(() => {
+                rafRef.current = null;
+                applyMagnifierPosition();
+            });
+        }
+    }, [applyMagnifierPosition, isMobileOrTablet]);
 
     const handlePointerUp = useCallback(() => {
-        if (dragTimerRef.current) {
-            clearTimeout(dragTimerRef.current);
-            dragTimerRef.current = null;
+        if (!isDraggingRef.current) return;
+        isDraggingRef.current = false;
+        setIsDragging(false);
+
+        if (rafRef.current !== null) {
+            cancelAnimationFrame(rafRef.current);
+            rafRef.current = null;
         }
-        setMagnifier((prev) => ({
-            ...prev,
-            isDragging: false,
-            isPressing: false,
-        }));
     }, []);
 
     useEffect(() => {
@@ -456,14 +434,48 @@ const KataKataBuku = () => {
 
     useEffect(() => {
         return () => {
-            if (dragTimerRef.current) clearTimeout(dragTimerRef.current);
+            if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
         };
     }, []);
 
-    const totalBookPages = quotesData.length + 2;
-    const containerHeight = PAGE_HEIGHT * screenSize.scale;
+    useEffect(() => {
+        if (isMobileOrTablet) return;
+        if (isDragging) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => { document.body.style.overflow = ''; };
+    }, [isDragging, isMobileOrTablet]);
 
-    const lensPos = getLensPos();
+    // Reset zoom saat pindah dari mobile ke desktop
+    useEffect(() => {
+        if (!isMobileOrTablet) setZoomLevel(1);
+    }, [isMobileOrTablet]);
+
+    const onPageChange = useCallback((e) => setCurrentPage(e.data), []);
+    const goPrev = useCallback(() => bookRef.current?.pageFlip().flipPrev(), []);
+    const goNext = useCallback(() => bookRef.current?.pageFlip().flipNext(), []);
+
+    // Zoom handlers
+    const handleZoomIn = useCallback(() => {
+        setZoomLevel((z) => Math.min(ZOOM_MAX, +(z + ZOOM_STEP).toFixed(2)));
+    }, []);
+
+    const handleZoomOut = useCallback(() => {
+        setZoomLevel((z) => Math.max(ZOOM_MIN, +(z - ZOOM_STEP).toFixed(2)));
+    }, []);
+
+    const handleZoomReset = useCallback(() => {
+        setZoomLevel(1);
+    }, []);
+
+    const totalBookPages = quotesData.length + 2;
+    const containerHeight = PAGE_HEIGHT * effectiveScale;
+
+    // Ukuran buku setelah di-scale
+    const scaledBookWidth = PAGE_WIDTH * 2 * effectiveScale;
+    const scaledBookHeight = PAGE_HEIGHT * effectiveScale;
 
     return (
         <section className="kkb-section">
@@ -502,31 +514,60 @@ const KataKataBuku = () => {
                         position: relative;
                         width: 100%;
                         display: flex;
+                        flex-direction: column;
                         justify-content: center;
                         align-items: center;
                         padding: 10px 0;
                         min-height: ${containerHeight + 40}px;
                         background: transparent;
                         overflow: visible;
-                        cursor: default;
                         user-select: none;
                         -webkit-user-select: none;
-                        touch-action: none;
+                        -webkit-touch-callout: none;
                     }
 
-                    .kkb-wrapper.kkb-dragging {
-                        cursor: grabbing;
+                    /* ============ SCROLL AREA ============ */
+                    .kkb-scroll-area {
+                        position: relative;
+                        width: 100%;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        overflow-x: auto;
+                        overflow-y: hidden;
+                        -webkit-overflow-scrolling: touch;
+                        scrollbar-width: thin;
+                        padding: 10px 0;
+                    }
+
+                    .kkb-scroll-area::-webkit-scrollbar {
+                        height: 6px;
+                    }
+                    .kkb-scroll-area::-webkit-scrollbar-track {
+                        background: rgba(212, 168, 83, 0.1);
+                        border-radius: 3px;
+                    }
+                    .kkb-scroll-area::-webkit-scrollbar-thumb {
+                        background: rgba(212, 168, 83, 0.4);
+                        border-radius: 3px;
+                    }
+
+                    /* ============ SPACER ============ */
+                    .kkb-spacer {
+                        position: relative;
+                        margin: 0 auto;
+                        flex-shrink: 0;
                     }
 
                     /* ============ CONTAINER ============ */
                     .kkb-container {
-                        position: relative;
-                        transform: scale(${screenSize.scale});
-                        transform-origin: center center;
+                        position: absolute;
+                        top: 0;
+                        left: 0;
                         width: ${PAGE_WIDTH * 2}px;
                         height: ${PAGE_HEIGHT}px;
-                        margin-top: ${-(PAGE_HEIGHT * (1 - screenSize.scale)) / 2}px;
-                        margin-bottom: ${-(PAGE_HEIGHT * (1 - screenSize.scale)) / 2}px;
+                        transform-origin: top left;
+                        will-change: transform;
                     }
 
                     /* ============ ZOOM LAYER ============ */
@@ -536,8 +577,13 @@ const KataKataBuku = () => {
                         pointer-events: none;
                         z-index: 90;
                         opacity: 0;
-                        transition: opacity 0.15s ease;
+                        transition: opacity 0.12s ease;
                         overflow: hidden;
+                        will-change: opacity;
+                    }
+
+                    .kkb-zoom-wrap.on {
+                        opacity: 1;
                     }
 
                     .kkb-zoom-inner {
@@ -551,13 +597,15 @@ const KataKataBuku = () => {
                     /* ============ LENSA ============ */
                     .kkb-lens-standalone {
                         position: absolute;
+                        top: 0;
+                        left: 0;
                         width: ${LENS_SIZE}px;
                         height: ${LENS_SIZE}px;
                         border-radius: 50%;
                         pointer-events: none;
                         z-index: 95;
-                        transform: translate(-50%, -50%) scale(${screenSize.scale});
-                        transform-origin: center center;
+                        transform-origin: 0 0;
+                        will-change: transform;
                         
                         background: transparent;
                         border: 1px solid rgba(255, 255, 255, 0.25);
@@ -566,7 +614,7 @@ const KataKataBuku = () => {
                             inset 0 0 4px rgba(0, 0, 0, 0.08);
                         
                         overflow: hidden;
-                        transition: opacity 0.15s ease;
+                        transition: opacity 0.12s ease;
                         opacity: 0;
                     }
 
@@ -592,13 +640,14 @@ const KataKataBuku = () => {
                     /* ============ GAMBAR KACA PEMBESAR ============ */
                     .kkb-magnifier {
                         position: absolute;
+                        top: 0;
+                        left: 0;
                         width: ${GLASS_SIZE}px;
                         height: ${GLASS_SIZE}px;
                         pointer-events: none;
                         z-index: 100;
-                        transform: translate(-50%, -50%) rotate(-15deg) scale(${screenSize.scale});
-                        transform-origin: center center;
-                        transition: transform 0.15s ease-out;
+                        transform-origin: 0 0;
+                        will-change: transform;
                         
                         background-image: url('/images/assets/kaca-pembesar.png');
                         background-size: contain;
@@ -606,23 +655,6 @@ const KataKataBuku = () => {
                         background-repeat: no-repeat;
                         
                         filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.5));
-                    }
-
-                    .kkb-magnifier.kkb-magnifier-active {
-                        transform: translate(-50%, -50%) rotate(-15deg) scale(${screenSize.scale * 1.05});
-                    }
-
-                    /* ============ OVERLAY CATCHER ============ */
-                    .kkb-overlay-catcher {
-                        position: absolute;
-                        inset: 0;
-                        z-index: 99;
-                        pointer-events: none;
-                        cursor: grabbing;
-                    }
-
-                    .kkb-overlay-catcher.active {
-                        pointer-events: auto;
                     }
 
                     /* ============ SHADOW BUKU ============ */
@@ -645,30 +677,83 @@ const KataKataBuku = () => {
                         box-sizing: border-box;
                     }
 
-                    /* ============ COVER ============ */
                     .kkb-page-cover {
                         background: 
                             radial-gradient(ellipse at center, #4a3520 0%, #2c1f16 60%, #1a120b 100%),
                             repeating-linear-gradient(90deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 2px, transparent 2px, transparent 8px);
                     }
 
-                    /* ============ HALAMAN KOSONG ============ */
                     .kkb-page-empty {
                         background: linear-gradient(135deg, #3d2914 0%, #2c1f16 100%);
                     }
 
-                    /* ============ HALAMAN ISI ============ */
                     .kkb-page-content {
                         background: 
                             linear-gradient(135deg, #faf5e8 0%, #f0e6d0 100%),
                             repeating-linear-gradient(45deg, rgba(139, 111, 71, 0.04) 0px, rgba(139, 111, 71, 0.04) 1px, transparent 1px, transparent 5px);
                     }
 
-                    /* ============ OVERRIDE STPAGEFLIP ============ */
                     .kkb-flipbook .stf__item {
                         transform-style: preserve-3d;
                         backface-visibility: hidden;
                         box-shadow: none !important;
+                    }
+
+                    /* ============ ZOOM CONTROLS (Mobile/Tablet) ============ */
+                    .kkb-zoom-controls {
+                        display: none;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 6px;
+                        margin-top: 8px;
+                        padding: 5px 8px;
+                        background: rgba(26, 18, 11, 0.7);
+                        border: 1px solid rgba(212, 168, 83, 0.4);
+                        border-radius: 999px;
+                        backdrop-filter: blur(8px);
+                        -webkit-backdrop-filter: blur(8px);
+                        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+                    }
+
+                    .kkb-zoom-btn {
+                        width: 36px;
+                        height: 36px;
+                        border-radius: 50%;
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        background: linear-gradient(135deg, #d4a853 0%, #8b6f47 100%);
+                        border: 2px solid #d4a853;
+                        color: #1a120b;
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+                        flex-shrink: 0;
+                        -webkit-tap-highlight-color: transparent;
+                        user-select: none;
+                    }
+
+                    .kkb-zoom-btn:active:not(:disabled) {
+                        transform: scale(0.9);
+                    }
+
+                    .kkb-zoom-btn:disabled {
+                        opacity: 0.3;
+                        cursor: not-allowed;
+                    }
+
+                    .kkb-zoom-btn .material-symbols-outlined {
+                        font-size: 20px;
+                    }
+
+                    .kkb-zoom-readout {
+                        font-family: Georgia, serif;
+                        font-size: 13px;
+                        font-weight: 700;
+                        color: #d4a853;
+                        min-width: 48px;
+                        text-align: center;
+                        letter-spacing: 0.05em;
+                        user-select: none;
                     }
 
                     /* ============ NAV BUTTON ============ */
@@ -683,9 +768,10 @@ const KataKataBuku = () => {
                         border: 2px solid #d4a853;
                         color: #1a120b;
                         cursor: pointer;
-                        transition: all 0.25s ease;
+                        transition: all 0.2s ease;
                         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
                         flex-shrink: 0;
+                        -webkit-tap-highlight-color: transparent;
                     }
                     .kkb-nav-btn:hover:not(:disabled) {
                         transform: scale(1.1);
@@ -705,6 +791,18 @@ const KataKataBuku = () => {
                             padding: 40px 0 30px;
                             background-attachment: scroll;
                         }
+
+                        /* 🔥 HIDE MAGNIFIER */
+                        .kkb-magnifier,
+                        .kkb-lens-standalone,
+                        .kkb-zoom-wrap {
+                            display: none !important;
+                        }
+
+                        /* 🔥 SHOW ZOOM CONTROLS */
+                        .kkb-zoom-controls {
+                            display: inline-flex;
+                        }
                     }
 
                     @media (max-width: 768px) {
@@ -719,9 +817,13 @@ const KataKataBuku = () => {
                         .kkb-nav-btn .material-symbols-outlined {
                             font-size: 20px;
                         }
-                        /* 🔥 KACA PEMBESAR TETAP TAMPIL DI MOBILE */
-                        .kkb-magnifier {
-                            /* Tidak di-hide lagi */
+                        .kkb-zoom-btn {
+                            width: 34px;
+                            height: 34px;
+                        }
+                        .kkb-zoom-readout {
+                            font-size: 12px;
+                            min-width: 44px;
                         }
                     }
 
@@ -736,6 +838,17 @@ const KataKataBuku = () => {
                         .kkb-nav-btn .material-symbols-outlined {
                             font-size: 18px;
                         }
+                        .kkb-zoom-btn {
+                            width: 32px;
+                            height: 32px;
+                        }
+                        .kkb-zoom-btn .material-symbols-outlined {
+                            font-size: 18px;
+                        }
+                        .kkb-zoom-readout {
+                            font-size: 11px;
+                            min-width: 40px;
+                        }
                     }
 
                     @media (max-width: 480px) {
@@ -747,6 +860,13 @@ const KataKataBuku = () => {
                             height: 32px;
                         }
                         .kkb-nav-btn .material-symbols-outlined {
+                            font-size: 16px;
+                        }
+                        .kkb-zoom-btn {
+                            width: 30px;
+                            height: 30px;
+                        }
+                        .kkb-zoom-btn .material-symbols-outlined {
                             font-size: 16px;
                         }
                     }
@@ -774,76 +894,112 @@ const KataKataBuku = () => {
                     </p>
                 </div>
 
-                {/* BUKU + KACA PEMBESAR */}
+                {/* BUKU + KACA PEMBESAR + ZOOM */}
                 <div
-                    className={`kkb-wrapper ${magnifier.isDragging ? 'kkb-dragging' : ''}`}
+                    className="kkb-wrapper"
                     ref={wrapperRef}
                     onPointerDown={handlePointerDown}
                     onPointerMove={handlePointerMove}
                     onPointerLeave={handlePointerUp}
                 >
-                    <div className="kkb-container" ref={bookContainerRef}>
-                        <HTMLFlipBook
-                            ref={bookRef}
-                            width={PAGE_WIDTH}
-                            height={PAGE_HEIGHT}
-                            size="fixed"
-                            minWidth={PAGE_WIDTH}
-                            maxWidth={PAGE_WIDTH * 2}
-                            minHeight={PAGE_HEIGHT}
-                            maxHeight={PAGE_HEIGHT * 2}
-                            maxShadowOpacity={0.3}
-                            showCover={true}
-                            mobileScrollSupport={true}
-                            onFlip={onPageChange}
-                            className={`kkb-flipbook ${currentPage > 0 ? 'kkb-book-open' : ''}`}
-                            flippingTime={800}
-                            /* 🔥 usePortrait={false} agar selalu 2 halaman */
-                            usePortrait={false}
-                            autoSize={false}
-                            clickEventForward={true}
-                            useMouseEvents={true}
-                            swipeDistance={30}
-                            showPageCorners={false}
-                            disableFlipByClick={false}
+                    {/* 🔥 SCROLL AREA — agar buku bisa di-pan saat di-zoom */}
+                    <div className="kkb-scroll-area">
+                        {/* Spacer dengan ukuran aktual setelah scale */}
+                        <div
+                            className="kkb-spacer"
+                            style={{
+                                width: `${scaledBookWidth}px`,
+                                height: `${scaledBookHeight}px`,
+                            }}
                         >
-                            <FrontCover />
-                            {quotesData.map((person, index) => (
-                                <ContentPage
-                                    key={person.id}
-                                    person={person}
-                                    pageNumber={index + 1}
-                                />
-                            ))}
-                            <BackCover />
-                            <EmptyPage />
-                        </HTMLFlipBook>
+                            <div
+                                className="kkb-container"
+                                ref={bookContainerRef}
+                                style={{
+                                    transform: `scale(${effectiveScale})`,
+                                }}
+                            >
+                                <HTMLFlipBook
+                                    ref={bookRef}
+                                    width={PAGE_WIDTH}
+                                    height={PAGE_HEIGHT}
+                                    size="fixed"
+                                    minWidth={PAGE_WIDTH}
+                                    maxWidth={PAGE_WIDTH * 2}
+                                    minHeight={PAGE_HEIGHT}
+                                    maxHeight={PAGE_HEIGHT * 2}
+                                    maxShadowOpacity={0.3}
+                                    showCover={true}
+                                    mobileScrollSupport={true}
+                                    onFlip={onPageChange}
+                                    className={`kkb-flipbook ${currentPage > 0 ? 'kkb-book-open' : ''}`}
+                                    flippingTime={600}
+                                    usePortrait={false}
+                                    autoSize={false}
+                                    clickEventForward={true}
+                                    useMouseEvents={true}
+                                    swipeDistance={20}
+                                    showPageCorners={false}
+                                    disableFlipByClick={false}
+                                >
+                                    <FrontCover />
+                                    {quotesData.map((person, index) => (
+                                        <ContentPage
+                                            key={person.id}
+                                            person={person}
+                                            pageNumber={index + 1}
+                                        />
+                                    ))}
+                                    <BackCover />
+                                    <EmptyPage />
+                                </HTMLFlipBook>
+                            </div>
+                        </div>
                     </div>
 
-                    {/* OVERLAY CATCHER */}
-                    <div className={`kkb-overlay-catcher ${magnifier.isDragging ? 'active' : ''}`} />
+                    {/* 🔥 ZOOM CONTROLS — hanya tampil di mobile/tablet */}
+                    <div className="kkb-zoom-controls">
+                        <button
+                            className="kkb-zoom-btn"
+                            onClick={handleZoomOut}
+                            disabled={zoomLevel <= ZOOM_MIN}
+                            aria-label="Zoom out"
+                        >
+                            <span className="material-symbols-outlined">zoom_out</span>
+                        </button>
 
-                    {/* ZOOM LAYER */}
-                    <div className="kkb-zoom-wrap" ref={zoomWrapRef} aria-hidden="true">
+                        <button
+                            className="kkb-zoom-readout"
+                            onClick={handleZoomReset}
+                            style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}
+                            aria-label="Reset zoom"
+                        >
+                            {Math.round(zoomLevel * 100)}%
+                        </button>
+
+                        <button
+                            className="kkb-zoom-btn"
+                            onClick={handleZoomIn}
+                            disabled={zoomLevel >= ZOOM_MAX}
+                            aria-label="Zoom in"
+                        >
+                            <span className="material-symbols-outlined">zoom_in</span>
+                        </button>
+                    </div>
+
+                    {/* ===== MAGNIFIER (Desktop Only) ===== */}
+                    <div className={`kkb-zoom-wrap ${isDragging ? 'on' : ''}`} ref={zoomWrapRef} aria-hidden="true">
                         <div className="kkb-zoom-inner" ref={zoomInnerRef}></div>
                     </div>
 
-                    {/* LENSA STANDALONE */}
                     <div
-                        className={`kkb-lens-standalone ${magnifier.isDragging ? 'on' : ''}`}
-                        style={{
-                            left: `${lensPos.x}px`,
-                            top: `${lensPos.y}px`,
-                        }}
+                        className={`kkb-lens-standalone ${isDragging ? 'on' : ''}`}
+                        ref={lensElRef}
                     />
 
-                    {/* GAMBAR KACA PEMBESAR */}
                     <div
-                        className={`kkb-magnifier ${magnifier.isDragging ? 'kkb-magnifier-active' : ''}`}
-                        style={{
-                            left: `${magnifier.posX}px`,
-                            top: `${magnifier.posY}px`,
-                        }}
+                        className="kkb-magnifier"
+                        ref={magnifierElRef}
                     />
                 </div>
 
@@ -885,7 +1041,10 @@ const KataKataBuku = () => {
                 </div>
 
                 <p className="font-serif italic text-[9px] sm:text-[10px] md:text-xs text-[#d4a853]/70 text-center px-2">
-                    Tahan & geser kaca pembesar untuk melihat detail halaman
+                    {isMobileOrTablet
+                        ? 'Gunakan tombol zoom untuk memperbesar atau memperkecil halaman'
+                        : 'Tahan & geser kaca pembesar untuk melihat detail halaman'
+                    }
                 </p>
             </div>
         </section>
