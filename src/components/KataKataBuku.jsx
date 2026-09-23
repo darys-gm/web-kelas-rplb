@@ -17,7 +17,6 @@ const ZOOM_MIN = 0.75;
 const ZOOM_MAX = 2.5;
 const ZOOM_STEP = 0.25;
 
-// 🔥 Ukuran thumb scrollbar
 const THUMB_WIDTH = 50;
 
 // ============================================
@@ -239,8 +238,7 @@ const KataKataBuku = () => {
     const [zoomLevel, setZoomLevel] = useState(1);
     const [isDragging, setIsDragging] = useState(false);
 
-    // 🔥 State untuk scrollbar
-    const [thumbPos, setThumbPos] = useState(0);       // 0 to 1
+    const [thumbPos, setThumbPos] = useState(0);
     const [showScrollbar, setShowScrollbar] = useState(false);
     const [isThumbDragging, setIsThumbDragging] = useState(false);
 
@@ -254,6 +252,7 @@ const KataKataBuku = () => {
     const isMobileOrTablet = screenSize.isMobile || screenSize.isTablet;
     const effectiveScale = screenSize.scale * (isMobileOrTablet ? zoomLevel : 1);
 
+    // 🔥 Saat zoomed di mobile/tablet, disable flip
     const disableFlip = isMobileOrTablet && zoomLevel > 1;
 
     useEffect(() => {
@@ -462,7 +461,7 @@ const KataKataBuku = () => {
     }, [isMobileOrTablet]);
 
     // ============================================
-    // 🔥 UPDATE SCROLLBAR STATE
+    // SCROLLBAR
     // ============================================
     const updateScrollbar = useCallback(() => {
         const el = scrollAreaRef.current;
@@ -479,7 +478,6 @@ const KataKataBuku = () => {
         setThumbPos(el.scrollLeft / maxScroll);
     }, []);
 
-    // Auto-center saat zoom berubah
     useEffect(() => {
         if (!isMobileOrTablet) return;
         if (!scrollAreaRef.current) return;
@@ -510,7 +508,6 @@ const KataKataBuku = () => {
         return () => cancelAnimationFrame(raf1);
     }, [zoomLevel, effectiveScale, isMobileOrTablet, updateScrollbar]);
 
-    // Scroll listener
     useEffect(() => {
         const el = scrollAreaRef.current;
         if (!el) return;
@@ -533,9 +530,7 @@ const KataKataBuku = () => {
         };
     }, [updateScrollbar]);
 
-    // ============================================
-    // 🔥 THUMB DRAG HANDLERS
-    // ============================================
+    // Thumb drag
     const handleThumbPointerDown = useCallback((e) => {
         e.stopPropagation();
         e.preventDefault();
@@ -586,11 +581,7 @@ const KataKataBuku = () => {
         };
     }, [isThumbDragging]);
 
-    // ============================================
-    // 🔥 TRACK TAP HANDLER
-    // ============================================
     const handleTrackPointerDown = useCallback((e) => {
-        // Ignore kalau klik di thumb
         if (e.target.closest('.kkb-scrollbar-thumb')) return;
 
         const track = trackRef.current;
@@ -682,7 +673,6 @@ const KataKataBuku = () => {
                         -webkit-touch-callout: none;
                     }
 
-                    /* ============ SCROLL AREA ============ */
                     .kkb-scroll-area {
                         position: relative;
                         width: 100%;
@@ -715,9 +705,7 @@ const KataKataBuku = () => {
                         will-change: transform;
                     }
 
-                    /* ============================================
-                       🔥 SCROLLBAR SLIDER
-                       ============================================ */
+                    /* ============ SCROLLBAR SLIDER ============ */
                     .kkb-scrollbar {
                         display: none;
                         width: 100%;
@@ -770,13 +758,6 @@ const KataKataBuku = () => {
                         will-change: left;
                     }
 
-                    .kkb-scrollbar-thumb:hover {
-                        box-shadow: 
-                            0 4px 12px rgba(0, 0, 0, 0.6),
-                            inset 0 1px rgba(255, 255, 255, 0.6),
-                            inset 0 -1px rgba(0, 0, 0, 0.15);
-                    }
-
                     .kkb-scrollbar-thumb.dragging,
                     .kkb-scrollbar-thumb:active {
                         cursor: grabbing;
@@ -787,7 +768,6 @@ const KataKataBuku = () => {
                             inset 0 1px rgba(255, 255, 255, 0.7);
                     }
 
-                    /* 🔥 Lingkaran kecil di tengah thumb */
                     .kkb-scrollbar-circle {
                         width: 8px;
                         height: 8px;
@@ -799,7 +779,6 @@ const KataKataBuku = () => {
                         pointer-events: none;
                     }
 
-                    /* ============ ZOOM LAYER ============ */
                     .kkb-zoom-wrap {
                         position: absolute;
                         inset: 0;
@@ -1078,7 +1057,9 @@ const KataKataBuku = () => {
                         className="kkb-scroll-area"
                         ref={scrollAreaRef}
                         style={{
-                            touchAction: disableFlip ? 'pan-x' : 'auto',
+                            // 🔥 Mobile/tablet: selalu pan-x (scroll saja, tanpa flip)
+                            // Desktop: auto (pageflip aktif)
+                            touchAction: isMobileOrTablet ? 'pan-x' : 'auto',
                         }}
                     >
                         <div
@@ -1113,10 +1094,12 @@ const KataKataBuku = () => {
                                     usePortrait={false}
                                     autoSize={false}
                                     clickEventForward={false}
-                                    useMouseEvents={true}
+                                    /* 🔥 KUNCI: Disable gesture flip di mobile/tablet */
+                                    useMouseEvents={!isMobileOrTablet}
                                     swipeDistance={10}
                                     showPageCorners={false}
-                                    disableFlipByClick={disableFlip}
+                                    /* 🔥 Disable click flip di mobile/tablet */
+                                    disableFlipByClick={isMobileOrTablet || disableFlip}
                                 >
                                     <FrontCover />
                                     {quotesData.map((person, index) => (
@@ -1133,7 +1116,7 @@ const KataKataBuku = () => {
                         </div>
                     </div>
 
-                    {/* 🔥 SCROLLBAR SLIDER */}
+                    {/* SCROLLBAR SLIDER */}
                     <div className={`kkb-scrollbar ${showScrollbar ? 'show' : ''}`}>
                         <div
                             className="kkb-scrollbar-track"
@@ -1239,7 +1222,7 @@ const KataKataBuku = () => {
 
                 <p className="font-serif italic text-[9px] sm:text-[10px] md:text-xs text-[#d4a853]/70 text-center px-2">
                     {isMobileOrTablet
-                        ? 'Gunakan tombol zoom · Geser slider untuk melihat seluruh halaman'
+                        ? 'Gunakan tombol ← → untuk ganti halaman · Zoom & slider untuk melihat detail'
                         : 'Tahan & geser kaca pembesar untuk melihat detail halaman'
                     }
                 </p>
