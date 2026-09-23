@@ -9,9 +9,9 @@ const PAGE_WIDTH = 340;
 const PAGE_HEIGHT = 480;
 const GLASS_SIZE = 220;
 const LENS_SIZE = 110;
-const LENS_OFFSET = { x: -30, y: -30 };
+const LENS_OFFSET = { x: -18, y: -76 };
 const MAG = 1.8;
-const INITIAL_OFFSET = { right: 250, bottom: 60 };
+const INITIAL_OFFSET = { right: 350, bottom: 60 };
 
 const ZOOM_MIN = 0.75;
 const ZOOM_MAX = 2.5;
@@ -87,9 +87,6 @@ const FrontCover = React.forwardRef((props, ref) => (
 
             <p className="font-serif text-[#d4a853]/85 text-[10px] sm:text-xs tracking-[0.3em] uppercase mb-1">
                 XII RPL B 23'
-            </p>
-            <p className="font-serif text-[#d4a853]/65 text-[9px] sm:text-[10px] italic">
-                Catatan Awak Kapal
             </p>
         </div>
     </div>
@@ -1027,11 +1024,9 @@ const KataKataBuku = () => {
                 {/* HEADER */}
                 <div className="text-center max-w-2xl">
                     <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1 sm:py-1.5 bg-gradient-to-r from-[#d4a853]/20 to-[#8b6f47]/20 backdrop-blur-sm rounded-full border border-[#d4a853]/40 mb-2 sm:mb-3">
-                        <span className="material-symbols-outlined text-[#d4a853] text-[10px] sm:text-sm">auto_stories</span>
                         <span className="font-serif text-[#d4a853] uppercase tracking-[0.15em] sm:tracking-[0.2em] text-[8px] sm:text-[10px] md:text-xs font-bold">
                             Buku Kenangan
                         </span>
-                        <span className="material-symbols-outlined text-[#d4a853] text-[10px] sm:text-sm">auto_stories</span>
                     </div>
                     <h2
                         className="font-serif text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-[#d4a853] tracking-tight mb-1 sm:mb-2"
@@ -1040,7 +1035,7 @@ const KataKataBuku = () => {
                         Kata Kata Agit
                     </h2>
                     <p className="font-serif text-[#d4a853]/70 text-[10px] sm:text-xs md:text-sm italic">
-                        XII RPL B 23' — Catatan Awak Kapal
+                        XII RPL B 23'
                     </p>
                 </div>
 
