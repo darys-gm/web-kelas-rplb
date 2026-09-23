@@ -156,7 +156,7 @@ const Navbar = () => {
                             {/* 🔥 Ukuran text brand diperkecil khusus mobile */}
                             <span
                                 className="font-display-hero text-[#d4a853] tracking-wider font-bold leading-tight whitespace-nowrap"
-                                style={{ fontSize: 'clamp(12px, 2.4vw, 16px)' }}
+                                style={{ fontSize: 'clamp(15px, 2.4vw, 16px)' }}
                             >
                                 XII RPL B 23'
                             </span>

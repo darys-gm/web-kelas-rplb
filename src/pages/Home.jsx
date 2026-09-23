@@ -431,7 +431,7 @@ const FloatingGameButton = ({ onClick }) => {
     return (
         <button
             onClick={onClick}
-            className="fixed bottom-5 right-4 xs:bottom-6 xs:right-5 sm:bottom-7 sm:right-6 md:bottom-8 md:right-7 lg:bottom-8 lg:right-8 z-[90] group cursor-pointer"
+            className="fixed bottom-5 right-4 xs:bottom-5 xs:right-4 sm:bottom-6 sm:right-5 z-[90] group cursor-pointer"
             aria-label="Buka Mini Games"
         >
             <div
@@ -460,8 +460,8 @@ const FloatingGameButton = ({ onClick }) => {
                     borderLeftColor: 'transparent',
                 }}
             />
-            {/* 🔥 Tombol diperbesar di mobile & tablet, normal di desktop */}
-            <div className="relative w-18 h-18 xs:w-20 xs:h-20 sm:w-20 sm:h-20 md:w-20 md:h-20 lg:w-20 lg:h-20 flex items-center justify-center">
+            {/* 🔥 Ukuran button — hanya sedikit lebih besar dari original */}
+            <div className="relative w-16 h-16 xs:w-[68px] xs:h-[68px] sm:w-[72px] sm:h-[72px] md:w-20 md:h-20 flex items-center justify-center">
                 <div
                     className="absolute inset-0 rounded-full"
                     style={{
