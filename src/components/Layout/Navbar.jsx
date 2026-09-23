@@ -152,7 +152,7 @@ const Navbar = () => {
                             </div>
                         </div>
                         <div className="flex flex-col">
-                            <span className="font-display-hero text-display-hero text-[#d4a853] text-[10px] xs:text-xs sm:text-sm md:text-base tracking-wider font-bold leading-tight whitespace-nowrap">
+                            <span className="font-display-hero text-[#d4a853] !text-[9px] xs:!text-[10px] sm:!text-xs md:!text-sm lg:!text-base tracking-wider font-bold leading-tight whitespace-nowrap">
                                 XII RPL B 23'
                             </span>
                         </div>
@@ -165,9 +165,8 @@ const Navbar = () => {
                     >
                         {/* Sliding Background Pill */}
                         <div
-                            className={`absolute top-1 bottom-1 rounded-full bg-gradient-to-r from-[#d4a853] to-[#b8860b] shadow-lg shadow-[#d4a853]/30 ${
-                                indicatorStyle.isReady ? 'opacity-100' : 'opacity-0'
-                            }`}
+                            className={`absolute top-1 bottom-1 rounded-full bg-gradient-to-r from-[#d4a853] to-[#b8860b] shadow-lg shadow-[#d4a853]/30 ${indicatorStyle.isReady ? 'opacity-100' : 'opacity-0'
+                                }`}
                             style={{
                                 width: `${indicatorStyle.width}px`,
                                 transform: `translateX(${indicatorStyle.translateX}px)`,
@@ -181,9 +180,8 @@ const Navbar = () => {
 
                         {/* Top Dot */}
                         <div
-                            className={`absolute top-0 h-1 bg-yellow-400 rounded-full shadow-lg shadow-yellow-400/50 ${
-                                indicatorStyle.isReady ? 'opacity-100' : 'opacity-0'
-                            }`}
+                            className={`absolute top-0 h-1 bg-yellow-400 rounded-full shadow-lg shadow-yellow-400/50 ${indicatorStyle.isReady ? 'opacity-100' : 'opacity-0'
+                                }`}
                             style={{
                                 width: '12px',
                                 transform: `translateX(${indicatorStyle.translateX + indicatorStyle.width / 2 - 6}px) translateY(-2px)`,
@@ -197,9 +195,8 @@ const Navbar = () => {
 
                         {/* Bottom Dot */}
                         <div
-                            className={`absolute bottom-0 w-1.5 h-1.5 bg-yellow-400 rounded-full shadow-lg shadow-yellow-400/50 ${
-                                indicatorStyle.isReady ? 'opacity-100' : 'opacity-0'
-                            }`}
+                            className={`absolute bottom-0 w-1.5 h-1.5 bg-yellow-400 rounded-full shadow-lg shadow-yellow-400/50 ${indicatorStyle.isReady ? 'opacity-100' : 'opacity-0'
+                                }`}
                             style={{
                                 transform: `translateX(${indicatorStyle.translateX + indicatorStyle.width / 2 - 3}px) translateY(4px)`,
                                 transition: indicatorStyle.isReady
@@ -216,11 +213,10 @@ const Navbar = () => {
                                 key={item.id}
                                 ref={(el) => (navRefs.current[item.id] = el)}
                                 onClick={() => scrollToSection(item.id)}
-                                className={`relative px-2.5 xl:px-3.5 py-1.5 rounded-full font-label-nav-coordinates flex items-center justify-center z-10 ${
-                                    activeSection === item.id
+                                className={`relative px-2.5 xl:px-3.5 py-1.5 rounded-full font-label-nav-coordinates flex items-center justify-center z-10 ${activeSection === item.id
                                         ? 'text-[#1a120e] font-semibold'
                                         : 'text-[#d4a853] hover:text-[#e8c060]'
-                                }`}
+                                    }`}
                                 style={{
                                     transition: 'color 400ms cubic-bezier(0.25, 1, 0.5, 1)',
                                 }}
@@ -245,20 +241,18 @@ const Navbar = () => {
             </div>
 
             {/* Mobile Menu */}
-            <div className={`lg:hidden bg-gradient-to-b from-[#0a0603] to-[#1a120e] border-t border-[#d4a853]/20 shadow-2xl transition-all duration-300 ${
-                isMobileMenuOpen ? 'max-h-[700px] opacity-100' : 'max-h-0 opacity-0 overflow-hidden'
-            }`}>
+            <div className={`lg:hidden bg-gradient-to-b from-[#0a0603] to-[#1a120e] border-t border-[#d4a853]/20 shadow-2xl transition-all duration-300 ${isMobileMenuOpen ? 'max-h-[700px] opacity-100' : 'max-h-0 opacity-0 overflow-hidden'
+                }`}>
                 <div className="max-w-[1280px] mx-auto px-4 py-4">
                     <div className="flex flex-col gap-1">
                         {navItems.map((item) => (
                             <button
                                 key={item.id}
                                 onClick={() => scrollToSection(item.id)}
-                                className={`flex items-center justify-between px-4 py-3 rounded-lg font-title-sm text-title-sm transition-all duration-300 ${
-                                    activeSection === item.id
+                                className={`flex items-center justify-between px-4 py-3 rounded-lg font-title-sm text-title-sm transition-all duration-300 ${activeSection === item.id
                                         ? 'bg-gradient-to-r from-[#d4a853] to-[#b8860b] text-[#1a120e] shadow-lg font-semibold'
                                         : 'text-[#d4a853] hover:bg-[#d4a853]/10 hover:text-[#e8c060]'
-                                }`}
+                                    }`}
                             >
                                 <span>{item.label}</span>
                                 {activeSection === item.id && (
