@@ -17,8 +17,8 @@ const ZOOM_MIN = 0.75;
 const ZOOM_MAX = 2.5;
 const ZOOM_STEP = 0.25;
 
-// 🔥 Jumlah dot indicator
-const DOT_COUNT = 5;
+// 🔥 Ukuran thumb scrollbar
+const THUMB_WIDTH = 50;
 
 // ============================================
 // HALAMAN KOSONG
@@ -226,6 +226,8 @@ const KataKataBuku = () => {
     const magnifierElRef = useRef(null);
     const lensElRef = useRef(null);
     const scrollAreaRef = useRef(null);
+    const trackRef = useRef(null);
+    const thumbRef = useRef(null);
 
     const [currentPage, setCurrentPage] = useState(0);
     const [screenSize, setScreenSize] = useState({
@@ -237,27 +239,27 @@ const KataKataBuku = () => {
     const [zoomLevel, setZoomLevel] = useState(1);
     const [isDragging, setIsDragging] = useState(false);
 
-    // 🔥 State untuk dot indicator
-    const [activeDot, setActiveDot] = useState(Math.floor(DOT_COUNT / 2));
-    const [showDots, setShowDots] = useState(false);
+    // 🔥 State untuk scrollbar
+    const [thumbPos, setThumbPos] = useState(0);       // 0 to 1
+    const [showScrollbar, setShowScrollbar] = useState(false);
+    const [isThumbDragging, setIsThumbDragging] = useState(false);
 
     const magnifierPosRef = useRef({ x: 0, y: 0 });
     const screenSizeRef = useRef({ isMobile: false, isTablet: false, scale: 1 });
     const isDraggingRef = useRef(false);
     const rafRef = useRef(null);
     const scrollRafRef = useRef(null);
+    const thumbDragRef = useRef({ startX: 0, startScrollLeft: 0 });
 
     const isMobileOrTablet = screenSize.isMobile || screenSize.isTablet;
     const effectiveScale = screenSize.scale * (isMobileOrTablet ? zoomLevel : 1);
 
-    // Disable flip saat zoomed di mobile/tablet
     const disableFlip = isMobileOrTablet && zoomLevel > 1;
 
     useEffect(() => {
         screenSizeRef.current = screenSize;
     }, [screenSize]);
 
-    // Deteksi ukuran layar
     useEffect(() => {
         const handleResize = () => {
             const w = window.innerWidth;
@@ -460,78 +462,64 @@ const KataKataBuku = () => {
     }, [isMobileOrTablet]);
 
     // ============================================
-    // 🔥 AUTO-CENTER SCROLL SAAT ZOOM BERUBAH
+    // 🔥 UPDATE SCROLLBAR STATE
     // ============================================
+    const updateScrollbar = useCallback(() => {
+        const el = scrollAreaRef.current;
+        if (!el) return;
+
+        const maxScroll = el.scrollWidth - el.clientWidth;
+        if (maxScroll <= 0) {
+            setShowScrollbar(false);
+            setThumbPos(0);
+            return;
+        }
+
+        setShowScrollbar(true);
+        setThumbPos(el.scrollLeft / maxScroll);
+    }, []);
+
+    // Auto-center saat zoom berubah
     useEffect(() => {
         if (!isMobileOrTablet) return;
         if (!scrollAreaRef.current) return;
 
         const el = scrollAreaRef.current;
 
-        // Reset dulu
         if (zoomLevel <= 1) {
             el.scrollLeft = 0;
-            setActiveDot(Math.floor(DOT_COUNT / 2));
-            setShowDots(false);
+            updateScrollbar();
             return;
         }
 
-        // 🔥 DOUBLE RAF untuk memastikan DOM sudah update
         const raf1 = requestAnimationFrame(() => {
             const raf2 = requestAnimationFrame(() => {
                 if (!scrollAreaRef.current) return;
                 const sw = el.scrollWidth;
                 const cw = el.clientWidth;
-                
+
                 if (sw > cw) {
-                    // 🔥 Set scroll ke TENGAH agar ujung kiri & kanan terlihat
-                    const centerScroll = (sw - cw) / 2;
-                    el.scrollLeft = centerScroll;
-                    setShowDots(true);
-                    
-                    // Update active dot
-                    const progress = centerScroll / (sw - cw);
-                    const dotIndex = Math.round(progress * (DOT_COUNT - 1));
-                    setActiveDot(Math.max(0, Math.min(DOT_COUNT - 1, dotIndex)));
+                    el.scrollLeft = (sw - cw) / 2;
                 } else {
                     el.scrollLeft = 0;
-                    setActiveDot(Math.floor(DOT_COUNT / 2));
-                    setShowDots(false);
                 }
+                updateScrollbar();
             });
-            // Store raf2 for cleanup
         });
 
-        return () => {
-            cancelAnimationFrame(raf1);
-        };
-    }, [zoomLevel, effectiveScale, isMobileOrTablet]);
+        return () => cancelAnimationFrame(raf1);
+    }, [zoomLevel, effectiveScale, isMobileOrTablet, updateScrollbar]);
 
-    // ============================================
-    // 🔥 SCROLL LISTENER untuk update active dot
-    // ============================================
+    // Scroll listener
     useEffect(() => {
         const el = scrollAreaRef.current;
         if (!el) return;
 
         const handleScroll = () => {
             if (scrollRafRef.current !== null) return;
-            
             scrollRafRef.current = requestAnimationFrame(() => {
                 scrollRafRef.current = null;
-                
-                const sw = el.scrollWidth;
-                const cw = el.clientWidth;
-                const maxScroll = sw - cw;
-                
-                if (maxScroll <= 0) {
-                    setShowDots(false);
-                    return;
-                }
-                
-                const progress = el.scrollLeft / maxScroll;
-                const dotIndex = Math.round(progress * (DOT_COUNT - 1));
-                setActiveDot(Math.max(0, Math.min(DOT_COUNT - 1, dotIndex)));
+                updateScrollbar();
             });
         };
 
@@ -543,26 +531,84 @@ const KataKataBuku = () => {
                 scrollRafRef.current = null;
             }
         };
+    }, [updateScrollbar]);
+
+    // ============================================
+    // 🔥 THUMB DRAG HANDLERS
+    // ============================================
+    const handleThumbPointerDown = useCallback((e) => {
+        e.stopPropagation();
+        e.preventDefault();
+
+        setIsThumbDragging(true);
+        thumbDragRef.current = {
+            startX: e.clientX,
+            startScrollLeft: scrollAreaRef.current?.scrollLeft || 0,
+        };
+
+        if (e.target.setPointerCapture) {
+            try { e.target.setPointerCapture(e.pointerId); } catch (_) {}
+        }
     }, []);
 
-    // ============================================
-    // 🔥 HANDLER DOT CLICK
-    // ============================================
-    const handleDotClick = useCallback((index) => {
+    const handleThumbPointerMove = useCallback((e) => {
+        if (!isThumbDragging) return;
+        e.stopPropagation();
+
+        const track = trackRef.current;
+        const thumb = thumbRef.current;
         const el = scrollAreaRef.current;
-        if (!el) return;
+        if (!track || !thumb || !el) return;
 
-        const sw = el.scrollWidth;
-        const cw = el.clientWidth;
-        const maxScroll = sw - cw;
+        const trackRect = track.getBoundingClientRect();
+        const thumbWidth = thumb.getBoundingClientRect().width;
+        const usableWidth = trackRect.width - thumbWidth;
 
-        if (maxScroll <= 0) return;
+        const dx = e.clientX - thumbDragRef.current.startX;
+        const maxScroll = el.scrollWidth - el.clientWidth;
+        const scrollDelta = (dx / usableWidth) * maxScroll;
 
-        // Map index ke posisi scroll
-        const targetScroll = (index / (DOT_COUNT - 1)) * maxScroll;
-        
+        el.scrollLeft = thumbDragRef.current.startScrollLeft + scrollDelta;
+    }, [isThumbDragging]);
+
+    const handleThumbPointerUp = useCallback(() => {
+        setIsThumbDragging(false);
+    }, []);
+
+    useEffect(() => {
+        if (!isThumbDragging) return;
+        const onUp = () => setIsThumbDragging(false);
+        window.addEventListener('pointerup', onUp);
+        window.addEventListener('pointercancel', onUp);
+        return () => {
+            window.removeEventListener('pointerup', onUp);
+            window.removeEventListener('pointercancel', onUp);
+        };
+    }, [isThumbDragging]);
+
+    // ============================================
+    // 🔥 TRACK TAP HANDLER
+    // ============================================
+    const handleTrackPointerDown = useCallback((e) => {
+        // Ignore kalau klik di thumb
+        if (e.target.closest('.kkb-scrollbar-thumb')) return;
+
+        const track = trackRef.current;
+        const thumb = thumbRef.current;
+        const el = scrollAreaRef.current;
+        if (!track || !thumb || !el) return;
+
+        const trackRect = track.getBoundingClientRect();
+        const thumbWidth = thumb.getBoundingClientRect().width;
+        const usableWidth = trackRect.width - thumbWidth;
+
+        const clickX = e.clientX - trackRect.left;
+        const thumbCenter = clickX - thumbWidth / 2;
+        const progress = Math.max(0, Math.min(1, thumbCenter / usableWidth));
+
+        const maxScroll = el.scrollWidth - el.clientWidth;
         el.scrollTo({
-            left: targetScroll,
+            left: progress * maxScroll,
             behavior: 'smooth',
         });
     }, []);
@@ -649,7 +695,6 @@ const KataKataBuku = () => {
                         padding: 10px 0;
                         overscroll-behavior-x: contain;
                     }
-                    /* Hide scrollbar */
                     .kkb-scroll-area::-webkit-scrollbar {
                         display: none;
                     }
@@ -660,7 +705,6 @@ const KataKataBuku = () => {
                         margin: 0 auto;
                     }
 
-                    /* ============ CONTAINER ============ */
                     .kkb-container {
                         position: absolute;
                         top: 0;
@@ -671,61 +715,88 @@ const KataKataBuku = () => {
                         will-change: transform;
                     }
 
-                    /* ============ DOT INDICATOR ============ */
-                    .kkb-dots {
+                    /* ============================================
+                       🔥 SCROLLBAR SLIDER
+                       ============================================ */
+                    .kkb-scrollbar {
                         display: none;
-                        align-items: center;
-                        justify-content: center;
-                        gap: 8px;
-                        margin-top: 12px;
-                        padding: 8px 14px;
-                        background: rgba(26, 18, 11, 0.7);
-                        border: 1px solid rgba(212, 168, 83, 0.3);
-                        border-radius: 999px;
-                        backdrop-filter: blur(8px);
-                        -webkit-backdrop-filter: blur(8px);
-                        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-                        /* 🔥 Cegah trigger page flip */
+                        width: 100%;
+                        max-width: 520px;
+                        padding: 10px 16px;
+                        margin-top: 10px;
                         position: relative;
                         z-index: 200;
                         touch-action: manipulation;
+                        opacity: 0;
+                        transition: opacity 0.25s ease;
                     }
 
-                    .kkb-dots.show {
-                        display: inline-flex;
+                    .kkb-scrollbar.show {
+                        display: block;
+                        opacity: 1;
                     }
 
-                    .kkb-dot {
-                        width: 10px;
-                        height: 10px;
-                        border-radius: 50%;
-                        background: rgba(212, 168, 83, 0.3);
-                        border: 1.5px solid rgba(212, 168, 83, 0.5);
-                        padding: 0;
-                        cursor: pointer;
-                        transition: all 0.25s ease;
-                        -webkit-tap-highlight-color: transparent;
-                        /* 🔥 Area tap lebih besar dari visual */
+                    .kkb-scrollbar-track {
                         position: relative;
+                        width: 100%;
+                        height: 16px;
+                        background: rgba(212, 168, 83, 0.12);
+                        border: 1px solid rgba(212, 168, 83, 0.25);
+                        border-radius: 999px;
+                        cursor: pointer;
+                        touch-action: none;
+                        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
                     }
 
-                    .kkb-dot::before {
-                        content: '';
+                    .kkb-scrollbar-thumb {
                         position: absolute;
-                        inset: -8px;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        height: 22px;
+                        width: ${THUMB_WIDTH}px;
+                        background: linear-gradient(180deg, #e0b869 0%, #b8935a 100%);
+                        border-radius: 999px;
+                        cursor: grab;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        box-shadow: 
+                            0 2px 8px rgba(0, 0, 0, 0.5),
+                            inset 0 1px rgba(255, 255, 255, 0.5),
+                            inset 0 -1px rgba(0, 0, 0, 0.15);
+                        touch-action: none;
+                        -webkit-tap-highlight-color: transparent;
+                        transition: box-shadow 0.15s ease, transform 0.15s ease;
+                        will-change: left;
+                    }
+
+                    .kkb-scrollbar-thumb:hover {
+                        box-shadow: 
+                            0 4px 12px rgba(0, 0, 0, 0.6),
+                            inset 0 1px rgba(255, 255, 255, 0.6),
+                            inset 0 -1px rgba(0, 0, 0, 0.15);
+                    }
+
+                    .kkb-scrollbar-thumb.dragging,
+                    .kkb-scrollbar-thumb:active {
+                        cursor: grabbing;
+                        transform: translateY(-50%) scale(1.08);
+                        box-shadow: 
+                            0 6px 16px rgba(0, 0, 0, 0.7),
+                            0 0 20px rgba(212, 168, 83, 0.5),
+                            inset 0 1px rgba(255, 255, 255, 0.7);
+                    }
+
+                    /* 🔥 Lingkaran kecil di tengah thumb */
+                    .kkb-scrollbar-circle {
+                        width: 8px;
+                        height: 8px;
                         border-radius: 50%;
-                    }
-
-                    .kkb-dot.active {
-                        background: #d4a853;
-                        border-color: #d4a853;
-                        width: 24px;
-                        border-radius: 6px;
-                        box-shadow: 0 0 12px rgba(212, 168, 83, 0.6);
-                    }
-
-                    .kkb-dot:active {
-                        transform: scale(0.85);
+                        background: radial-gradient(circle at 35% 35%, #4a3520, #1a120b);
+                        box-shadow: 
+                            inset 0 1px 2px rgba(0, 0, 0, 0.5),
+                            0 1px 1px rgba(255, 255, 255, 0.3);
+                        pointer-events: none;
                     }
 
                     /* ============ ZOOM LAYER ============ */
@@ -739,7 +810,6 @@ const KataKataBuku = () => {
                         overflow: hidden;
                         will-change: opacity;
                     }
-
                     .kkb-zoom-wrap.on { opacity: 1; }
 
                     .kkb-zoom-inner {
@@ -770,7 +840,6 @@ const KataKataBuku = () => {
                         transition: opacity 0.12s ease;
                         opacity: 0;
                     }
-
                     .kkb-lens-standalone.on { opacity: 1; }
 
                     .kkb-lens-standalone::before {
@@ -948,8 +1017,8 @@ const KataKataBuku = () => {
                         .kkb-nav-btn .material-symbols-outlined { font-size: 20px; }
                         .kkb-zoom-btn { width: 34px; height: 34px; }
                         .kkb-zoom-readout { font-size: 12px; min-width: 48px; }
-                        .kkb-dot { width: 9px; height: 9px; }
-                        .kkb-dot.active { width: 22px; }
+                        .kkb-scrollbar-track { height: 14px; }
+                        .kkb-scrollbar-thumb { height: 20px; }
                     }
 
                     @media (max-width: 640px) {
@@ -959,6 +1028,9 @@ const KataKataBuku = () => {
                         .kkb-zoom-btn { width: 32px; height: 32px; }
                         .kkb-zoom-btn .material-symbols-outlined { font-size: 18px; }
                         .kkb-zoom-readout { font-size: 11px; min-width: 44px; }
+                        .kkb-scrollbar-track { height: 12px; }
+                        .kkb-scrollbar-thumb { height: 18px; }
+                        .kkb-scrollbar-circle { width: 6px; height: 6px; }
                     }
 
                     @media (max-width: 480px) {
@@ -967,8 +1039,7 @@ const KataKataBuku = () => {
                         .kkb-nav-btn .material-symbols-outlined { font-size: 16px; }
                         .kkb-zoom-btn { width: 30px; height: 30px; }
                         .kkb-zoom-btn .material-symbols-outlined { font-size: 16px; }
-                        .kkb-dot { width: 8px; height: 8px; }
-                        .kkb-dot.active { width: 20px; }
+                        .kkb-scrollbar { padding: 8px 12px; }
                     }
                 `
             }} />
@@ -1038,7 +1109,6 @@ const KataKataBuku = () => {
                                     mobileScrollSupport={false}
                                     onFlip={onPageChange}
                                     className={`kkb-flipbook ${currentPage > 0 ? 'kkb-book-open' : ''}`}
-                                    /* 🔥 Touch flip sama dengan desktop */
                                     flippingTime={400}
                                     usePortrait={false}
                                     autoSize={false}
@@ -1063,16 +1133,26 @@ const KataKataBuku = () => {
                         </div>
                     </div>
 
-                    {/* DOT INDICATOR */}
-                    <div className={`kkb-dots ${showDots ? 'show' : ''}`}>
-                        {Array.from({ length: DOT_COUNT }).map((_, i) => (
-                            <button
-                                key={i}
-                                className={`kkb-dot ${activeDot === i ? 'active' : ''}`}
-                                onClick={() => handleDotClick(i)}
-                                aria-label={`Scroll ke bagian ${i + 1}`}
-                            />
-                        ))}
+                    {/* 🔥 SCROLLBAR SLIDER */}
+                    <div className={`kkb-scrollbar ${showScrollbar ? 'show' : ''}`}>
+                        <div
+                            className="kkb-scrollbar-track"
+                            ref={trackRef}
+                            onPointerDown={handleTrackPointerDown}
+                        >
+                            <div
+                                className={`kkb-scrollbar-thumb ${isThumbDragging ? 'dragging' : ''}`}
+                                ref={thumbRef}
+                                style={{
+                                    left: `calc(${thumbPos * 100}% - ${thumbPos * THUMB_WIDTH}px)`,
+                                }}
+                                onPointerDown={handleThumbPointerDown}
+                                onPointerMove={handleThumbPointerMove}
+                                onPointerUp={handleThumbPointerUp}
+                            >
+                                <div className="kkb-scrollbar-circle" />
+                            </div>
+                        </div>
                     </div>
 
                     {/* ZOOM CONTROLS */}
@@ -1159,7 +1239,7 @@ const KataKataBuku = () => {
 
                 <p className="font-serif italic text-[9px] sm:text-[10px] md:text-xs text-[#d4a853]/70 text-center px-2">
                     {isMobileOrTablet
-                        ? 'Gunakan tombol zoom · Tap dot untuk navigasi scroll'
+                        ? 'Gunakan tombol zoom · Geser slider untuk melihat seluruh halaman'
                         : 'Tahan & geser kaca pembesar untuk melihat detail halaman'
                     }
                 </p>
