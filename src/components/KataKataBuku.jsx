@@ -3,29 +3,29 @@ import HTMLFlipBook from 'react-pageflip';
 import quotesData from '../data/quotes';
 
 // ============================================
-// KONFIGURASI — DIPISAH AGAR FLEKSIBEL
+// KONFIGURASI
 // ============================================
 
-// 🔥 Ukuran HALAMAN buku (untuk HTMLFlipBook)
+// 🔥 Ukuran HALAMAN buku
 const PAGE_WIDTH = 340;
 const PAGE_HEIGHT = 480;
 
-// 🔥 Ukuran GAMBAR kaca pembesar (png + gagang)
+// 🔥 Ukuran GAMBAR kaca pembesar
 const GLASS_SIZE = 220;
 
-// 🔥 Ukuran LENSA zoom (lingkaran tempat konten diperbesar)
+// 🔥 Ukuran LENSA zoom
 const LENS_SIZE = 110;
 
-// 🔥 Offset posisi lensa relatif ke titik tengah gambar kaca
+// 🔥 Offset lensa
 const LENS_OFFSET = {
     x: -30,
     y: -30,
 };
 
-// 🔥 Faktor zoom konten di dalam lensa
+// 🔥 Faktor zoom
 const MAG = 1.8;
 
-// Posisi awal kaca di pojok kanan bawah buku
+// Posisi awal kaca
 const INITIAL_OFFSET = {
     right: 250,
     bottom: 60,
@@ -245,7 +245,6 @@ const KataKataBuku = () => {
         scale: 1,
     });
 
-    // Posisi kaca di wrapper (pusat gambar kaca)
     const [magnifier, setMagnifier] = useState({
         posX: 0,
         posY: 0,
@@ -253,6 +252,7 @@ const KataKataBuku = () => {
         isPressing: false,
     });
 
+    // 🔥 Deteksi ukuran layar
     useEffect(() => {
         const handleResize = () => {
             const w = window.innerWidth;
@@ -260,12 +260,27 @@ const KataKataBuku = () => {
             let isTablet = false;
             let scale = 1;
 
-            if (w <= 480) { isMobile = true; scale = 0.42; }
-            else if (w <= 640) { isMobile = true; scale = 0.5; }
-            else if (w <= 768) { isTablet = true; scale = 0.6; }
-            else if (w <= 1024) { isTablet = true; scale = 0.75; }
-            else if (w <= 1280) { scale = 0.85; }
-            else { scale = 1; }
+            // 🔥 Scale disesuaikan agar buku 2 halaman selalu muat
+            if (w <= 380) {
+                isMobile = true;
+                scale = 0.32;
+            } else if (w <= 480) {
+                isMobile = true;
+                scale = 0.4;
+            } else if (w <= 640) {
+                isMobile = true;
+                scale = 0.5;
+            } else if (w <= 768) {
+                isTablet = true;
+                scale = 0.6;
+            } else if (w <= 1024) {
+                isTablet = true;
+                scale = 0.75;
+            } else if (w <= 1280) {
+                scale = 0.85;
+            } else {
+                scale = 1;
+            }
 
             setScreenSize({ isMobile, isTablet, scale });
         };
@@ -281,8 +296,8 @@ const KataKataBuku = () => {
         const rect = wrapperRef.current.getBoundingClientRect();
         setMagnifier((prev) => ({
             ...prev,
-            posX: rect.width - INITIAL_OFFSET.right,
-            posY: rect.height - INITIAL_OFFSET.bottom,
+            posX: rect.width - INITIAL_OFFSET.right * screenSize.scale,
+            posY: rect.height - INITIAL_OFFSET.bottom * screenSize.scale,
         }));
     }, [screenSize.scale]);
 
@@ -322,10 +337,9 @@ const KataKataBuku = () => {
         syncZoomLayer();
     }, [currentPage, syncZoomLayer]);
 
-    // Hitung posisi lensa di wrapper
     const getLensPos = () => ({
-        x: magnifier.posX + LENS_OFFSET.x,
-        y: magnifier.posY + LENS_OFFSET.y,
+        x: magnifier.posX + LENS_OFFSET.x * screenSize.scale,
+        y: magnifier.posY + LENS_OFFSET.y * screenSize.scale,
     });
 
     // Update zoom layer
@@ -342,29 +356,24 @@ const KataKataBuku = () => {
         if (!B.w) return;
 
         const lensPos = getLensPos();
-        const lensRadius = LENS_SIZE / 2;
+        const lensRadius = (LENS_SIZE / 2) * screenSize.scale;
 
-        // Posisi lensa relatif ke buku (dalam koordinat wrapper)
         const bookRect = bookContainer.getBoundingClientRect();
         const wrapperRect = wrapperRef.current.getBoundingClientRect();
         const bookOffsetX = bookRect.left - wrapperRect.left;
         const bookOffsetY = bookRect.top - wrapperRect.top;
 
-        // Posisi lensa relatif ke buku (undo scale)
         const lensBookX = (lensPos.x - bookOffsetX) / screenSize.scale;
         const lensBookY = (lensPos.y - bookOffsetY) / screenSize.scale;
 
-        // Clamp posisi lensa di dalam buku
         const clampedBookX = Math.max(0, Math.min(lensBookX, B.w));
         const clampedBookY = Math.max(0, Math.min(lensBookY, B.h));
 
-        // Mask: lingkaran yang mengikuti posisi lensa
         const mask = `radial-gradient(circle ${lensRadius}px at ${lensPos.x}px ${lensPos.y}px, #000 calc(100% - 1px), transparent 100%)`;
         zoomWrap.style.maskImage = mask;
         zoomWrap.style.webkitMaskImage = mask;
         zoomWrap.style.opacity = magnifier.isDragging ? '1' : '0';
 
-        // Transform zoom: titik di bawah lensa harus tampil di tengah lensa
         const translateX = lensPos.x - clampedBookX * MAG * screenSize.scale;
         const translateY = lensPos.y - clampedBookY * MAG * screenSize.scale;
 
@@ -378,7 +387,7 @@ const KataKataBuku = () => {
         placeZoom();
     }, [placeZoom]);
 
-    // 🔥 CEK APAKAH KURSOR DI DALAM AREA KACA PEMBESAR
+    // Cek kursor di dalam kaca
     const isCursorInsideGlass = useCallback((clientX, clientY) => {
         if (!wrapperRef.current) return false;
 
@@ -390,17 +399,15 @@ const KataKataBuku = () => {
         const dy = cursorY - magnifier.posY;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
-        // Radius kaca
-        const glassRadius = GLASS_SIZE / 2;
+        const glassRadius = (GLASS_SIZE / 2) * screenSize.scale;
 
         return distance <= glassRadius;
-    }, [magnifier.posX, magnifier.posY]);
+    }, [magnifier.posX, magnifier.posY, screenSize.scale]);
 
-    // 🔥 GUNAKAN CAPTURE PHASE UNTUK MENCEGAH EVENT SAMPAI KE react-pageflip
-    const handleMouseDownCapture = useCallback((e) => {
+    // 🔥 Menggunakan POINTER EVENTS (works for both mouse & touch)
+    const handlePointerDown = useCallback((e) => {
         if (!wrapperRef.current) return;
 
-        // Jika kursor di dalam kaca → stopPropagation agar react-pageflip tidak menerima
         if (isCursorInsideGlass(e.clientX, e.clientY)) {
             e.stopPropagation();
             e.preventDefault();
@@ -413,11 +420,10 @@ const KataKataBuku = () => {
         }
     }, [isCursorInsideGlass]);
 
-    const handleMouseMove = useCallback((e) => {
+    const handlePointerMove = useCallback((e) => {
         if (!wrapperRef.current) return;
         if (!magnifier.isDragging) return;
 
-        // Stop propagation agar react-pageflip tidak ikut menangani
         e.stopPropagation();
 
         const rect = wrapperRef.current.getBoundingClientRect();
@@ -427,7 +433,7 @@ const KataKataBuku = () => {
         setMagnifier((prev) => ({ ...prev, posX: x, posY: y }));
     }, [magnifier.isDragging]);
 
-    const handleMouseUp = useCallback(() => {
+    const handlePointerUp = useCallback(() => {
         if (dragTimerRef.current) {
             clearTimeout(dragTimerRef.current);
             dragTimerRef.current = null;
@@ -440,9 +446,13 @@ const KataKataBuku = () => {
     }, []);
 
     useEffect(() => {
-        window.addEventListener('mouseup', handleMouseUp);
-        return () => window.removeEventListener('mouseup', handleMouseUp);
-    }, [handleMouseUp]);
+        window.addEventListener('pointerup', handlePointerUp);
+        window.addEventListener('pointercancel', handlePointerUp);
+        return () => {
+            window.removeEventListener('pointerup', handlePointerUp);
+            window.removeEventListener('pointercancel', handlePointerUp);
+        };
+    }, [handlePointerUp]);
 
     useEffect(() => {
         return () => {
@@ -501,6 +511,7 @@ const KataKataBuku = () => {
                         cursor: default;
                         user-select: none;
                         -webkit-user-select: none;
+                        touch-action: none;
                     }
 
                     .kkb-wrapper.kkb-dragging {
@@ -537,7 +548,7 @@ const KataKataBuku = () => {
                         will-change: transform;
                     }
 
-                    /* ============ LENSA (LINGKARAN ZOOM) ============ */
+                    /* ============ LENSA ============ */
                     .kkb-lens-standalone {
                         position: absolute;
                         width: ${LENS_SIZE}px;
@@ -545,7 +556,8 @@ const KataKataBuku = () => {
                         border-radius: 50%;
                         pointer-events: none;
                         z-index: 95;
-                        transform: translate(-50%, -50%);
+                        transform: translate(-50%, -50%) scale(${screenSize.scale});
+                        transform-origin: center center;
                         
                         background: transparent;
                         border: 1px solid rgba(255, 255, 255, 0.25);
@@ -584,7 +596,8 @@ const KataKataBuku = () => {
                         height: ${GLASS_SIZE}px;
                         pointer-events: none;
                         z-index: 100;
-                        transform: translate(-50%, -50%) rotate(-15deg);
+                        transform: translate(-50%, -50%) rotate(-15deg) scale(${screenSize.scale});
+                        transform-origin: center center;
                         transition: transform 0.15s ease-out;
                         
                         background-image: url('/images/assets/kaca-pembesar.png');
@@ -596,10 +609,10 @@ const KataKataBuku = () => {
                     }
 
                     .kkb-magnifier.kkb-magnifier-active {
-                        transform: translate(-50%, -50%) rotate(-15deg) scale(1.05);
+                        transform: translate(-50%, -50%) rotate(-15deg) scale(${screenSize.scale * 1.05});
                     }
 
-                    /* 🔥 OVERLAY TRANSPARAN UNTUK MENCURI EVENT SAAT DRAG KACA */
+                    /* ============ OVERLAY CATCHER ============ */
                     .kkb-overlay-catcher {
                         position: absolute;
                         inset: 0;
@@ -706,13 +719,9 @@ const KataKataBuku = () => {
                         .kkb-nav-btn .material-symbols-outlined {
                             font-size: 20px;
                         }
-                        .kkb-magnifier,
-                        .kkb-lens-standalone,
-                        .kkb-overlay-catcher {
-                            display: none;
-                        }
-                        .kkb-zoom-wrap {
-                            display: none;
+                        /* 🔥 KACA PEMBESAR TETAP TAMPIL DI MOBILE */
+                        .kkb-magnifier {
+                            /* Tidak di-hide lagi */
                         }
                     }
 
@@ -769,9 +778,9 @@ const KataKataBuku = () => {
                 <div
                     className={`kkb-wrapper ${magnifier.isDragging ? 'kkb-dragging' : ''}`}
                     ref={wrapperRef}
-                    onMouseDownCapture={handleMouseDownCapture}
-                    onMouseMove={handleMouseMove}
-                    onMouseLeave={handleMouseUp}
+                    onPointerDown={handlePointerDown}
+                    onPointerMove={handlePointerMove}
+                    onPointerLeave={handlePointerUp}
                 >
                     <div className="kkb-container" ref={bookContainerRef}>
                         <HTMLFlipBook
@@ -789,7 +798,8 @@ const KataKataBuku = () => {
                             onFlip={onPageChange}
                             className={`kkb-flipbook ${currentPage > 0 ? 'kkb-book-open' : ''}`}
                             flippingTime={800}
-                            usePortrait={screenSize.isMobile}
+                            /* 🔥 usePortrait={false} agar selalu 2 halaman */
+                            usePortrait={false}
                             autoSize={false}
                             clickEventForward={true}
                             useMouseEvents={true}
@@ -810,7 +820,7 @@ const KataKataBuku = () => {
                         </HTMLFlipBook>
                     </div>
 
-                    {/* 🔥 OVERLAY TRANSPARAN — AKTIF SAAT DRAG KACA, UNTUK MENCURI EVENT */}
+                    {/* OVERLAY CATCHER */}
                     <div className={`kkb-overlay-catcher ${magnifier.isDragging ? 'active' : ''}`} />
 
                     {/* ZOOM LAYER */}
