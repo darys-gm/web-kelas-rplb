@@ -13,9 +13,9 @@ const LENS_OFFSET = { x: -30, y: -30 };
 const MAG = 1.8;
 const INITIAL_OFFSET = { right: 250, bottom: 60 };
 
-// 🔥 Zoom level untuk mobile/tablet
+// 🔥 Zoom level untuk mobile/tablet — MAX 250%
 const ZOOM_MIN = 0.75;
-const ZOOM_MAX = 3.0;
+const ZOOM_MAX = 2.5;
 const ZOOM_STEP = 0.25;
 
 // ============================================
@@ -223,6 +223,7 @@ const KataKataBuku = () => {
     const zoomInnerRef = useRef(null);
     const magnifierElRef = useRef(null);
     const lensElRef = useRef(null);
+    const scrollAreaRef = useRef(null);
 
     const [currentPage, setCurrentPage] = useState(0);
     const [screenSize, setScreenSize] = useState({
@@ -231,7 +232,6 @@ const KataKataBuku = () => {
         scale: 1,
     });
 
-    // 🔥 Zoom level untuk mobile/tablet
     const [zoomLevel, setZoomLevel] = useState(1);
     const [isDragging, setIsDragging] = useState(false);
 
@@ -240,11 +240,11 @@ const KataKataBuku = () => {
     const isDraggingRef = useRef(false);
     const rafRef = useRef(null);
 
-    // 🔥 Cek apakah di mobile/tablet
     const isMobileOrTablet = screenSize.isMobile || screenSize.isTablet;
-
-    // 🔥 Skala efektif = skala dasar × zoom level (hanya berlaku di mobile/tablet)
     const effectiveScale = screenSize.scale * (isMobileOrTablet ? zoomLevel : 1);
+
+    // 🔥 Disable flip saat zoomed di mobile/tablet
+    const disableFlip = isMobileOrTablet && zoomLevel > 1;
 
     useEffect(() => {
         screenSizeRef.current = screenSize;
@@ -275,7 +275,7 @@ const KataKataBuku = () => {
     }, []);
 
     // ============================================
-    // MAGNIFIER (Desktop only)
+    // MAGNIFIER (Desktop Only)
     // ============================================
     const applyMagnifierPosition = useCallback(() => {
         if (!magnifierElRef.current || !lensElRef.current) return;
@@ -345,7 +345,7 @@ const KataKataBuku = () => {
     }, [applyMagnifierPosition]);
 
     useEffect(() => {
-        if (isMobileOrTablet) return; // Skip sync on mobile/tablet
+        if (isMobileOrTablet) return;
         syncZoomLayer();
     }, [currentPage, screenSize.scale, syncZoomLayer, isMobileOrTablet]);
 
@@ -376,7 +376,7 @@ const KataKataBuku = () => {
     }, [isMobileOrTablet]);
 
     const handlePointerDown = useCallback((e) => {
-        if (isMobileOrTablet) return; // Magnifier disabled
+        if (isMobileOrTablet) return;
         if (!wrapperRef.current) return;
         if (!isCursorInsideGlass(e.clientX, e.clientY)) return;
 
@@ -448,16 +448,42 @@ const KataKataBuku = () => {
         return () => { document.body.style.overflow = ''; };
     }, [isDragging, isMobileOrTablet]);
 
-    // Reset zoom saat pindah dari mobile ke desktop
     useEffect(() => {
         if (!isMobileOrTablet) setZoomLevel(1);
     }, [isMobileOrTablet]);
+
+    // 🔥 Auto-center scroll saat zoom berubah
+    useEffect(() => {
+        if (!isMobileOrTablet) return;
+        if (!scrollAreaRef.current) return;
+
+        // Reset ke 0 dulu, lalu center via RAF
+        const el = scrollAreaRef.current;
+        
+        if (zoomLevel <= 1) {
+            el.scrollLeft = 0;
+            return;
+        }
+
+        // Tunggu DOM update dulu
+        const rafId = requestAnimationFrame(() => {
+            if (!scrollAreaRef.current) return;
+            const sw = el.scrollWidth;
+            const cw = el.clientWidth;
+            if (sw > cw) {
+                el.scrollLeft = (sw - cw) / 2;
+            } else {
+                el.scrollLeft = 0;
+            }
+        });
+
+        return () => cancelAnimationFrame(rafId);
+    }, [zoomLevel, effectiveScale, isMobileOrTablet]);
 
     const onPageChange = useCallback((e) => setCurrentPage(e.data), []);
     const goPrev = useCallback(() => bookRef.current?.pageFlip().flipPrev(), []);
     const goNext = useCallback(() => bookRef.current?.pageFlip().flipNext(), []);
 
-    // Zoom handlers
     const handleZoomIn = useCallback(() => {
         setZoomLevel((z) => Math.min(ZOOM_MAX, +(z + ZOOM_STEP).toFixed(2)));
     }, []);
@@ -473,7 +499,6 @@ const KataKataBuku = () => {
     const totalBookPages = quotesData.length + 2;
     const containerHeight = PAGE_HEIGHT * effectiveScale;
 
-    // Ukuran buku setelah di-scale
     const scaledBookWidth = PAGE_WIDTH * 2 * effectiveScale;
     const scaledBookHeight = PAGE_HEIGHT * effectiveScale;
 
@@ -518,7 +543,6 @@ const KataKataBuku = () => {
                         justify-content: center;
                         align-items: center;
                         padding: 10px 0;
-                        min-height: ${containerHeight + 40}px;
                         background: transparent;
                         overflow: visible;
                         user-select: none;
@@ -527,17 +551,21 @@ const KataKataBuku = () => {
                     }
 
                     /* ============ SCROLL AREA ============ */
+                    /* 🔥 FIX: display block + text-align center agar
+                       buku selalu center saat muat, dan bisa di-scroll
+                       sampai ujung kiri-kanan saat overflow */
                     .kkb-scroll-area {
                         position: relative;
                         width: 100%;
-                        display: flex;
-                        justify-content: center;
-                        align-items: center;
                         overflow-x: auto;
                         overflow-y: hidden;
                         -webkit-overflow-scrolling: touch;
                         scrollbar-width: thin;
+                        scrollbar-color: rgba(212, 168, 83, 0.4) rgba(212, 168, 83, 0.1);
+                        display: flex;
+                        align-items: center;
                         padding: 10px 0;
+                        overscroll-behavior-x: contain;
                     }
 
                     .kkb-scroll-area::-webkit-scrollbar {
@@ -552,11 +580,12 @@ const KataKataBuku = () => {
                         border-radius: 3px;
                     }
 
-                    /* ============ SPACER ============ */
+                    /* 🔥 FIX: margin auto pada flex item → center saat fits,
+                       tetap left-aligned saat overflow (bisa scroll ke kanan) */
                     .kkb-spacer {
                         position: relative;
-                        margin: 0 auto;
                         flex-shrink: 0;
+                        margin: 0 auto;
                     }
 
                     /* ============ CONTAINER ============ */
@@ -699,13 +728,13 @@ const KataKataBuku = () => {
                         box-shadow: none !important;
                     }
 
-                    /* ============ ZOOM CONTROLS (Mobile/Tablet) ============ */
+                    /* ============ ZOOM CONTROLS ============ */
                     .kkb-zoom-controls {
                         display: none;
                         align-items: center;
                         justify-content: center;
                         gap: 6px;
-                        margin-top: 8px;
+                        margin-top: 12px;
                         padding: 5px 8px;
                         background: rgba(26, 18, 11, 0.7);
                         border: 1px solid rgba(212, 168, 83, 0.4);
@@ -750,10 +779,21 @@ const KataKataBuku = () => {
                         font-size: 13px;
                         font-weight: 700;
                         color: #d4a853;
-                        min-width: 48px;
+                        min-width: 52px;
+                        padding: 6px 4px;
                         text-align: center;
                         letter-spacing: 0.05em;
                         user-select: none;
+                        background: transparent;
+                        border: none;
+                        cursor: pointer;
+                        border-radius: 8px;
+                        transition: background 0.15s ease;
+                        -webkit-tap-highlight-color: transparent;
+                    }
+
+                    .kkb-zoom-readout:active {
+                        background: rgba(212, 168, 83, 0.15);
                     }
 
                     /* ============ NAV BUTTON ============ */
@@ -792,14 +832,14 @@ const KataKataBuku = () => {
                             background-attachment: scroll;
                         }
 
-                        /* 🔥 HIDE MAGNIFIER */
+                        /* HIDE MAGNIFIER */
                         .kkb-magnifier,
                         .kkb-lens-standalone,
                         .kkb-zoom-wrap {
                             display: none !important;
                         }
 
-                        /* 🔥 SHOW ZOOM CONTROLS */
+                        /* SHOW ZOOM CONTROLS */
                         .kkb-zoom-controls {
                             display: inline-flex;
                         }
@@ -823,7 +863,7 @@ const KataKataBuku = () => {
                         }
                         .kkb-zoom-readout {
                             font-size: 12px;
-                            min-width: 44px;
+                            min-width: 48px;
                         }
                     }
 
@@ -847,7 +887,7 @@ const KataKataBuku = () => {
                         }
                         .kkb-zoom-readout {
                             font-size: 11px;
-                            min-width: 40px;
+                            min-width: 44px;
                         }
                     }
 
@@ -902,9 +942,17 @@ const KataKataBuku = () => {
                     onPointerMove={handlePointerMove}
                     onPointerLeave={handlePointerUp}
                 >
-                    {/* 🔥 SCROLL AREA — agar buku bisa di-pan saat di-zoom */}
-                    <div className="kkb-scroll-area">
-                        {/* Spacer dengan ukuran aktual setelah scale */}
+                    {/* SCROLL AREA */}
+                    <div
+                        className="kkb-scroll-area"
+                        ref={scrollAreaRef}
+                        style={{
+                            // 🔥 touch-action dinamis:
+                            // - zoomed: pan-x (horizontal scroll only, pageflip disabled)
+                            // - not zoomed: auto (pageflip handles swipes)
+                            touchAction: disableFlip ? 'pan-x' : 'auto',
+                        }}
+                    >
                         <div
                             className="kkb-spacer"
                             style={{
@@ -930,17 +978,19 @@ const KataKataBuku = () => {
                                     maxHeight={PAGE_HEIGHT * 2}
                                     maxShadowOpacity={0.3}
                                     showCover={true}
-                                    mobileScrollSupport={true}
+                                    mobileScrollSupport={false}
                                     onFlip={onPageChange}
                                     className={`kkb-flipbook ${currentPage > 0 ? 'kkb-book-open' : ''}`}
-                                    flippingTime={600}
+                                    /* 🔥 Touch smoothness: lebih cepat & responsif */
+                                    flippingTime={500}
                                     usePortrait={false}
                                     autoSize={false}
                                     clickEventForward={true}
-                                    useMouseEvents={true}
-                                    swipeDistance={20}
+                                    /* 🔥 Disable swipe saat zoomed */
+                                    useMouseEvents={!disableFlip}
+                                    swipeDistance={15}
                                     showPageCorners={false}
-                                    disableFlipByClick={false}
+                                    disableFlipByClick={disableFlip}
                                 >
                                     <FrontCover />
                                     {quotesData.map((person, index) => (
@@ -957,7 +1007,7 @@ const KataKataBuku = () => {
                         </div>
                     </div>
 
-                    {/* 🔥 ZOOM CONTROLS — hanya tampil di mobile/tablet */}
+                    {/* ZOOM CONTROLS */}
                     <div className="kkb-zoom-controls">
                         <button
                             className="kkb-zoom-btn"
@@ -971,7 +1021,6 @@ const KataKataBuku = () => {
                         <button
                             className="kkb-zoom-readout"
                             onClick={handleZoomReset}
-                            style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}
                             aria-label="Reset zoom"
                         >
                             {Math.round(zoomLevel * 100)}%
@@ -987,7 +1036,7 @@ const KataKataBuku = () => {
                         </button>
                     </div>
 
-                    {/* ===== MAGNIFIER (Desktop Only) ===== */}
+                    {/* MAGNIFIER (Desktop Only) */}
                     <div className={`kkb-zoom-wrap ${isDragging ? 'on' : ''}`} ref={zoomWrapRef} aria-hidden="true">
                         <div className="kkb-zoom-inner" ref={zoomInnerRef}></div>
                     </div>
@@ -1042,7 +1091,7 @@ const KataKataBuku = () => {
 
                 <p className="font-serif italic text-[9px] sm:text-[10px] md:text-xs text-[#d4a853]/70 text-center px-2">
                     {isMobileOrTablet
-                        ? 'Gunakan tombol zoom untuk memperbesar atau memperkecil halaman'
+                        ? 'Gunakan tombol zoom · Scroll horizontal untuk melihat seluruh halaman'
                         : 'Tahan & geser kaca pembesar untuk melihat detail halaman'
                     }
                 </p>
