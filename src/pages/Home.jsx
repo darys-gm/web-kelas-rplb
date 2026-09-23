@@ -10,10 +10,8 @@ import {
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Virtual, Autoplay, EffectCoverflow } from 'swiper/modules';
 
-// Import komponen DragGallery dari folder components
 import { DraggableContainer, GridBody, GridItem } from '../components/DragGallery';
 
-// Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -27,9 +25,8 @@ import PieceOfTheMap from '../components/PieceOfTheMap';
 import KrakenSmash from '../components/KrakenSmash';
 import KataKataBuku from '../components/KataKataBuku';
 
-
 // ============================================
-// KOMPONEN SCROLL REVEAL (Animasi saat scroll)
+// KOMPONEN SCROLL REVEAL
 // ============================================
 const ScrollReveal = ({
     children,
@@ -51,16 +48,9 @@ const ScrollReveal = ({
                     observer.disconnect();
                 }
             },
-            {
-                threshold,
-                rootMargin: '0px 0px -50px 0px'
-            }
+            { threshold, rootMargin: '0px 0px -50px 0px' }
         );
-
-        if (ref.current) {
-            observer.observe(ref.current);
-        }
-
+        if (ref.current) observer.observe(ref.current);
         return () => observer.disconnect();
     }, [threshold]);
 
@@ -69,7 +59,6 @@ const ScrollReveal = ({
             opacity: isVisible ? 1 : 0,
             transition: `opacity ${duration}ms cubic-bezier(0.4, 0, 0.2, 1) ${delay}ms, transform ${duration}ms cubic-bezier(0.4, 0, 0.2, 1) ${delay}ms`,
         };
-
         switch (animation) {
             case 'fade-up':
                 return { ...base, transform: isVisible ? 'translateY(0)' : 'translateY(40px)' };
@@ -103,7 +92,7 @@ const ScrollReveal = ({
 };
 
 // ============================================
-// KOMPONEN SCROLL INDICATOR (Dot Vertikal di Kanan)
+// SCROLL INDICATOR — 🔥 DIPERBESAR UNTUK MOBILE & TABLET
 // ============================================
 const ScrollIndicator = () => {
     const [activeSection, setActiveSection] = useState('home');
@@ -119,7 +108,6 @@ const ScrollIndicator = () => {
         { id: 'kata-kata', label: 'Kata Kata', icon: 'auto_stories' },
     ];
 
-    // Sembunyikan indicator saat di hero section
     useEffect(() => {
         const handleScroll = () => {
             setIsVisible(window.scrollY > 200);
@@ -129,7 +117,6 @@ const ScrollIndicator = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // Deteksi section aktif saat scroll
     useEffect(() => {
         const observerOptions = {
             root: null,
@@ -164,11 +151,12 @@ const ScrollIndicator = () => {
 
     return (
         <div
-            className={`fixed right-2 xs:right-3 sm:right-4 md:right-5 lg:right-6 top-20 xs:top-24 sm:top-28 md:top-32 z-[80] transition-all duration-500 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8 pointer-events-none'
-                }`}
+            className={`fixed right-2.5 xs:right-3 sm:right-4 md:right-5 lg:right-6 top-24 xs:top-28 sm:top-32 md:top-32 z-[80] transition-all duration-500 ${
+                isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8 pointer-events-none'
+            }`}
         >
             <div
-                className="relative flex flex-col items-center gap-1.5 xs:gap-2 sm:gap-3 py-2 xs:py-2.5 sm:py-3 px-1 xs:px-1.5 sm:px-2 rounded-full backdrop-blur-md"
+                className="relative flex flex-col items-center gap-2.5 xs:gap-3 sm:gap-3 md:gap-3 py-3 xs:py-3.5 sm:py-3.5 md:py-3 px-1.5 xs:px-2 sm:px-2 md:px-2 rounded-full backdrop-blur-md"
                 style={{
                     background: 'linear-gradient(180deg, rgba(30, 20, 12, 0.85) 0%, rgba(20, 12, 8, 0.85) 100%)',
                     border: '1.5px solid rgba(212, 168, 83, 0.4)',
@@ -178,7 +166,7 @@ const ScrollIndicator = () => {
             >
                 {/* Tali dekoratif atas */}
                 <div
-                    className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-5 xs:w-6 h-[2px] rounded-full"
+                    className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-6 xs:w-7 sm:w-7 h-[2px] rounded-full"
                     style={{
                         background: 'linear-gradient(90deg, transparent, #d4a853, transparent)',
                     }}
@@ -194,9 +182,9 @@ const ScrollIndicator = () => {
                             className="group relative flex items-center justify-center transition-all duration-300 p-0.5"
                             aria-label={`Scroll ke ${section.label}`}
                         >
-                            {/* Tooltip Label */}
+                            {/* Tooltip Label — hanya di lg ke atas */}
                             <div
-                                className="absolute right-full mr-2 xs:mr-3 sm:mr-4 px-2 xs:px-2.5 sm:px-3 py-1 xs:py-1.5 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-300 pointer-events-none hidden xs:block"
+                                className="absolute right-full mr-3 xs:mr-4 sm:mr-4 px-2.5 xs:px-3 sm:px-3 py-1 xs:py-1.5 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-300 pointer-events-none hidden lg:block"
                                 style={{
                                     background:
                                         'linear-gradient(135deg, #2e261b 0%, #1e1a15 100%)',
@@ -205,21 +193,20 @@ const ScrollIndicator = () => {
                                         '0 4px 15px rgba(0, 0, 0, 0.5), 0 0 15px rgba(212, 168, 83, 0.2)',
                                 }}
                             >
-                                <div className="flex items-center gap-1 xs:gap-1.5">
+                                <div className="flex items-center gap-1.5">
                                     <span
-                                        className="material-symbols-outlined text-[12px] xs:text-[13px] sm:text-[14px] md:text-[16px]"
+                                        className="material-symbols-outlined text-[14px]"
                                         style={{ color: '#d4a853' }}
                                     >
                                         {section.icon}
                                     </span>
                                     <span
-                                        className="font-serif text-[9px] xs:text-[10px] sm:text-xs tracking-wider uppercase font-bold"
+                                        className="font-serif text-[11px] tracking-wider uppercase font-bold"
                                         style={{ color: '#e5be6d' }}
                                     >
                                         {section.label}
                                     </span>
                                 </div>
-                                {/* Arrow pointer */}
                                 <div
                                     className="absolute left-full top-1/2 -translate-y-1/2 w-0 h-0"
                                     style={{
@@ -230,12 +217,13 @@ const ScrollIndicator = () => {
                                 />
                             </div>
 
-                            {/* Dot */}
+                            {/* 🔥 Dot — DIPERBESAR di mobile & tablet, normal di desktop */}
                             <span
-                                className={`block rounded-full transition-all duration-500 relative ${isActive
-                                    ? 'w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4'
-                                    : 'w-1.5 h-1.5 xs:w-2 xs:h-2 sm:w-2.5 sm:h-2.5'
-                                    }`}
+                                className={`block rounded-full transition-all duration-500 relative ${
+                                    isActive
+                                        ? 'w-5 h-5 xs:w-5 xs:h-5 sm:w-5 sm:h-5 md:w-5 md:h-5 lg:w-4 lg:h-4'
+                                        : 'w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-3.5 sm:h-3.5 md:w-3.5 md:h-3.5 lg:w-2.5 lg:h-2.5'
+                                }`}
                                 style={{
                                     background: isActive
                                         ? 'radial-gradient(circle at 30% 30%, #ffe88a 0%, #ffd700 50%, #d4a853 100%)'
@@ -248,10 +236,9 @@ const ScrollIndicator = () => {
                                         : '1px solid rgba(212, 168, 83, 0.5)',
                                 }}
                             >
-                                {/* Ring berputar saat aktif */}
                                 {isActive && (
                                     <span
-                                        className="absolute inset-[-3px] xs:inset-[-4px] rounded-full border animate-[spin_4s_linear_infinite]"
+                                        className="absolute inset-[-3px] xs:inset-[-4px] sm:inset-[-4px] rounded-full border animate-[spin_4s_linear_infinite]"
                                         style={{
                                             borderColor: 'rgba(212, 168, 83, 0.6)',
                                             borderTopColor: 'transparent',
@@ -266,7 +253,7 @@ const ScrollIndicator = () => {
 
                 {/* Tali dekoratif bawah */}
                 <div
-                    className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-5 xs:w-6 h-[2px] rounded-full"
+                    className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-6 xs:w-7 sm:w-7 h-[2px] rounded-full"
                     style={{
                         background: 'linear-gradient(90deg, transparent, #d4a853, transparent)',
                     }}
@@ -277,7 +264,7 @@ const ScrollIndicator = () => {
 };
 
 // ============================================
-// KOMPONEN LAZY LOADING UNTUK GAMBAR
+// LAZY IMAGE
 // ============================================
 const LazyImage = ({ src, alt, className, loading = 'lazy', ...props }) => {
     const [isLoaded, setIsLoaded] = useState(false);
@@ -297,17 +284,11 @@ const LazyImage = ({ src, alt, className, loading = 'lazy', ...props }) => {
             },
             { rootMargin: '200px', threshold: 0.01 }
         );
-
-        if (placeholderRef.current) {
-            observer.observe(placeholderRef.current);
-        }
-
+        if (placeholderRef.current) observer.observe(placeholderRef.current);
         return () => observer.disconnect();
     }, []);
 
-    const handleLoad = useCallback(() => {
-        setIsLoaded(true);
-    }, []);
+    const handleLoad = useCallback(() => { setIsLoaded(true); }, []);
 
     return (
         <div ref={placeholderRef} className="relative w-full h-full">
@@ -330,7 +311,7 @@ const LazyImage = ({ src, alt, className, loading = 'lazy', ...props }) => {
 };
 
 // ============================================
-// KOMPONEN LAZY LOADING UNTUK IFRAME (TIKTOK)
+// LAZY TIKTOK EMBED
 // ============================================
 const LazyTikTokEmbed = ({ videoId, title, className = '' }) => {
     const [isInView, setIsInView] = useState(false);
@@ -349,17 +330,11 @@ const LazyTikTokEmbed = ({ videoId, title, className = '' }) => {
             },
             { rootMargin: '200px', threshold: 0.1 }
         );
-
-        if (containerRef.current) {
-            observer.observe(containerRef.current);
-        }
-
+        if (containerRef.current) observer.observe(containerRef.current);
         return () => observer.disconnect();
     }, []);
 
-    const handleIframeLoad = useCallback(() => {
-        setIsLoaded(true);
-    }, []);
+    const handleIframeLoad = useCallback(() => { setIsLoaded(true); }, []);
 
     return (
         <div
@@ -377,12 +352,10 @@ const LazyTikTokEmbed = ({ videoId, title, className = '' }) => {
                         </div>
                     </div>
                 )}
-
                 {isInView && (
                     <iframe
                         src={`https://www.tiktok.com/embed/v2/${videoId}?loop=1&autoplay=0`}
-                        className={`absolute top-0 left-0 w-full h-full rounded-lg transition-opacity duration-700 ${isLoaded ? 'opacity-100' : 'opacity-0'
-                            }`}
+                        className={`absolute top-0 left-0 w-full h-full rounded-lg transition-opacity duration-700 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
                         frameBorder="0"
                         scrolling="no"
                         allowFullScreen
@@ -398,7 +371,7 @@ const LazyTikTokEmbed = ({ videoId, title, className = '' }) => {
 };
 
 // ============================================
-// KOMPONEN LAZY LOADING UNTUK VIDEO BACKGROUND
+// LAZY VIDEO BACKGROUND
 // ============================================
 const LazyVideoBackground = ({ src, poster, className = '', children }) => {
     const [isInView, setIsInView] = useState(false);
@@ -417,11 +390,7 @@ const LazyVideoBackground = ({ src, poster, className = '', children }) => {
             },
             { rootMargin: '50px', threshold: 0.01 }
         );
-
-        if (containerRef.current) {
-            observer.observe(containerRef.current);
-        }
-
+        if (containerRef.current) observer.observe(containerRef.current);
         return () => observer.disconnect();
     }, []);
 
@@ -456,13 +425,13 @@ const LazyVideoBackground = ({ src, poster, className = '', children }) => {
 };
 
 // ============================================
-// KOMPONEN FLOATING BUTTON MINI GAMES
+// 🔥 FLOATING GAME BUTTON — DIPERBESAR UNTUK MOBILE & TABLET
 // ============================================
 const FloatingGameButton = ({ onClick }) => {
     return (
         <button
             onClick={onClick}
-            className="fixed bottom-4 right-4 xs:bottom-5 xs:right-5 sm:bottom-6 sm:right-6 md:bottom-8 md:right-8 z-[90] group cursor-pointer"
+            className="fixed bottom-5 right-4 xs:bottom-6 xs:right-5 sm:bottom-7 sm:right-6 md:bottom-8 md:right-7 lg:bottom-8 lg:right-8 z-[90] group cursor-pointer"
             aria-label="Buka Mini Games"
         >
             <div
@@ -491,7 +460,8 @@ const FloatingGameButton = ({ onClick }) => {
                     borderLeftColor: 'transparent',
                 }}
             />
-            <div className="relative w-14 h-14 xs:w-16 xs:h-16 sm:w-16 sm:h-16 md:w-20 md:h-20 flex items-center justify-center">
+            {/* 🔥 Tombol diperbesar di mobile & tablet, normal di desktop */}
+            <div className="relative w-18 h-18 xs:w-20 xs:h-20 sm:w-20 sm:h-20 md:w-20 md:h-20 lg:w-20 lg:h-20 flex items-center justify-center">
                 <div
                     className="absolute inset-0 rounded-full"
                     style={{
@@ -535,7 +505,7 @@ const FloatingGameButton = ({ onClick }) => {
 };
 
 // ============================================
-// V1: KOMPONEN EFEK AURA EMAS + HUJAN COIN + CHIBI BAJAK LAUT + KAPAL
+// GOLD AURA EFFECT
 // ============================================
 const GoldAuraEffect = ({ isActive, onFinish, duration = 10000 }) => {
     const [isFadingOut, setIsFadingOut] = useState(false);
@@ -691,8 +661,7 @@ const GoldAuraEffect = ({ isActive, onFinish, duration = 10000 }) => {
 
     return (
         <div
-            className={`fixed inset-0 z-[200] pointer-events-none overflow-hidden transition-opacity duration-700 ease-out ${isFadingOut ? 'opacity-0' : 'opacity-100'
-                }`}
+            className={`fixed inset-0 z-[200] pointer-events-none overflow-hidden transition-opacity duration-700 ease-out ${isFadingOut ? 'opacity-0' : 'opacity-100'}`}
         >
             <style dangerouslySetInnerHTML={{
                 __html: `
@@ -906,7 +875,7 @@ const GoldAuraEffect = ({ isActive, onFinish, duration = 10000 }) => {
 };
 
 // ============================================
-// V2: KOMPONEN EFEK DARK KRAKEN (BIRU TUA + HITAM)
+// DARK KRAKEN EFFECT
 // ============================================
 const DarkKrakenEffect = ({ isActive, onFinish, duration = 10000 }) => {
     const [isFadingOut, setIsFadingOut] = useState(false);
@@ -930,7 +899,6 @@ const DarkKrakenEffect = ({ isActive, onFinish, duration = 10000 }) => {
             shipSoundRef.current.volume = 0.4;
             shipSoundRef.current.loop = true;
         }
-
         if (lightningPoolRef.current.length === 0) {
             lightningPoolRef.current = Array.from({ length: 6 }, () => {
                 const audio = new Audio('/sounds/petir.mp3');
@@ -939,7 +907,6 @@ const DarkKrakenEffect = ({ isActive, onFinish, duration = 10000 }) => {
                 return audio;
             });
         }
-
         return () => {
             if (krakenSoundRef.current) {
                 krakenSoundRef.current.pause();
@@ -961,13 +928,11 @@ const DarkKrakenEffect = ({ isActive, onFinish, duration = 10000 }) => {
             setIsFadingOut(false);
             const timer = setTimeout(() => {
                 setKrakenVisible(true);
-
                 if (shipSoundRef.current) {
                     shipSoundRef.current.currentTime = 0;
                     shipSoundRef.current.loop = true;
                     shipSoundRef.current.play().catch(() => { });
                 }
-
                 if (krakenSoundRef.current) {
                     krakenSoundRef.current.currentTime = 0;
                     krakenSoundRef.current.loop = true;
@@ -978,7 +943,6 @@ const DarkKrakenEffect = ({ isActive, onFinish, duration = 10000 }) => {
         } else {
             setKrakenVisible(false);
             setIsFadingOut(false);
-
             if (krakenSoundRef.current) {
                 krakenSoundRef.current.pause();
                 krakenSoundRef.current.currentTime = 0;
@@ -991,7 +955,6 @@ const DarkKrakenEffect = ({ isActive, onFinish, duration = 10000 }) => {
                 audio.pause();
                 audio.currentTime = 0;
             });
-
             if (krakenVideoRef.current) {
                 krakenVideoRef.current.pause();
                 krakenVideoRef.current.currentTime = 0;
@@ -1010,16 +973,13 @@ const DarkKrakenEffect = ({ isActive, onFinish, duration = 10000 }) => {
 
     useEffect(() => {
         if (!isActive) return;
-
         let lightningTimer = null;
 
         const playLightningSound = () => {
             const pool = lightningPoolRef.current;
             if (pool.length === 0) return;
-
             const idx = lightningPoolIndexRef.current % pool.length;
             lightningPoolIndexRef.current += 1;
-
             const audio = pool[idx];
             if (audio) {
                 audio.volume = 0.5 + Math.random() * 0.3;
@@ -1029,26 +989,20 @@ const DarkKrakenEffect = ({ isActive, onFinish, duration = 10000 }) => {
 
         const triggerLightningSound = () => {
             playLightningSound();
-
             const nextDelay = 700 + Math.random() * 800;
             lightningTimer = setTimeout(triggerLightningSound, nextDelay);
         };
 
         lightningTimer = setTimeout(triggerLightningSound, 400);
-
-        return () => {
-            clearTimeout(lightningTimer);
-        };
+        return () => clearTimeout(lightningTimer);
     }, [isActive]);
 
     useEffect(() => {
         if (!isActive) return;
-
         const fadeTimer = setTimeout(() => setIsFadingOut(true), duration - 800);
         const finishTimer = setTimeout(() => {
             if (onFinish) onFinish();
             setIsFadingOut(false);
-
             if (krakenSoundRef.current) {
                 krakenSoundRef.current.pause();
                 krakenSoundRef.current.currentTime = 0;
@@ -1066,7 +1020,6 @@ const DarkKrakenEffect = ({ isActive, onFinish, duration = 10000 }) => {
                 krakenVideoRef.current.currentTime = 0;
             }
         }, duration);
-
         return () => {
             clearTimeout(fadeTimer);
             clearTimeout(finishTimer);
@@ -1077,8 +1030,7 @@ const DarkKrakenEffect = ({ isActive, onFinish, duration = 10000 }) => {
 
     return (
         <div
-            className={`fixed inset-0 z-[200] pointer-events-none overflow-hidden transition-opacity duration-700 ease-out ${isFadingOut ? 'opacity-0' : 'opacity-100'
-                }`}
+            className={`fixed inset-0 z-[200] pointer-events-none overflow-hidden transition-opacity duration-700 ease-out ${isFadingOut ? 'opacity-0' : 'opacity-100'}`}
             style={{
                 background: 'radial-gradient(ellipse at center, rgba(5, 15, 40, 0.9) 0%, rgba(0, 0, 10, 0.98) 100%)',
             }}
@@ -1100,14 +1052,6 @@ const DarkKrakenEffect = ({ isActive, onFinish, duration = 10000 }) => {
                     @keyframes darkAuraRight {
                         0%, 100% { opacity: 0.6; filter: blur(30px) brightness(1); }
                         50%      { opacity: 0.95; filter: blur(50px) brightness(1.5); }
-                    }
-                    @keyframes shimmerSweepHorizontal {
-                        0%   { transform: translateX(-100%); }
-                        100% { transform: translateX(100%); }
-                    }
-                    @keyframes shimmerSweepVertical {
-                        0%   { transform: translateY(-100%); }
-                        100% { transform: translateY(100%); }
                     }
                     @keyframes krakenFadeIn {
                         0% { opacity: 0; }
@@ -1282,7 +1226,7 @@ const DarkKrakenEffect = ({ isActive, onFinish, duration = 10000 }) => {
 };
 
 // ============================================
-// KOMPONEN MODAL UNTUK PENGURUS
+// PENGURUS MODAL
 // ============================================
 const PengurusModal = ({ isOpen, onClose, data, type }) => {
     if (!isOpen || !data) return null;
@@ -1304,10 +1248,7 @@ const PengurusModal = ({ isOpen, onClose, data, type }) => {
             className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
             onClick={onClose}
         >
-            <div
-                className="relative max-w-md w-full"
-                onClick={(e) => e.stopPropagation()}
-            >
+            <div className="relative max-w-md w-full" onClick={(e) => e.stopPropagation()}>
                 <div
                     className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden"
                     style={{
@@ -1332,17 +1273,11 @@ const PengurusModal = ({ isOpen, onClose, data, type }) => {
                                 src="/images/assets/bingkai-pengurus.png"
                             />
                             <div className="absolute inset-[8%_12%_14%_12%] overflow-hidden rounded-[4px] bg-[#1a120b] shadow-inner flex items-center justify-center z-0">
-                                <LazyImage
-                                    className="w-full h-full object-cover object-center"
-                                    src={data.foto}
-                                    alt={data.nama}
-                                />
+                                <LazyImage className="w-full h-full object-cover object-center" src={data.foto} alt={data.nama} />
                             </div>
                         </div>
 
-                        <h3 className="font-headline-md text-headline-md text-white text-center font-bold mb-1 drop-shadow-lg">
-                            {data.nama}
-                        </h3>
+                        <h3 className="font-headline-md text-headline-md text-white text-center font-bold mb-1 drop-shadow-lg">{data.nama}</h3>
 
                         <div className="px-3 py-1 rounded-full bg-[#d4a853] text-[#1a120e] font-label-nav-coordinates text-xs tracking-wider uppercase font-semibold shadow-xs mb-3">
                             {getJabatan()}
@@ -1350,73 +1285,31 @@ const PengurusModal = ({ isOpen, onClose, data, type }) => {
 
                         {!isWaliKelas && (
                             <div className="flex items-center gap-3 mt-1 flex-wrap justify-center max-w-[280px]">
-                                <a
-                                    href={data.instagram || '#'}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-orange-400 text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
-                                    title="Instagram"
-                                >
+                                <a href={data.instagram || '#'} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-orange-400 text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg" title="Instagram">
                                     <i className="fab fa-instagram text-lg"></i>
                                 </a>
-
                                 {data.tiktok && (
-                                    <a
-                                        href={data.tiktok}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg border border-white/20"
-                                        style={{ boxShadow: '0 0 15px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1)' }}
-                                        title="TikTok"
-                                    >
+                                    <a href={data.tiktok} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg border border-white/20" style={{ boxShadow: '0 0 15px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1)' }} title="TikTok">
                                         <i className="fab fa-tiktok text-lg"></i>
                                     </a>
                                 )}
-
                                 {data.linkedin && (
-                                    <a
-                                        href={data.linkedin}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="w-10 h-10 rounded-full bg-[#0A66C2] text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
-                                        title="LinkedIn"
-                                    >
+                                    <a href={data.linkedin} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-[#0A66C2] text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg" title="LinkedIn">
                                         <i className="fab fa-linkedin-in text-lg"></i>
                                     </a>
                                 )}
-
                                 {data.github && (
-                                    <a
-                                        href={data.github}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="w-10 h-10 rounded-full bg-[#333] text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
-                                        title="GitHub"
-                                    >
+                                    <a href={data.github} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-[#333] text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg" title="GitHub">
                                         <i className="fab fa-github text-lg"></i>
                                     </a>
                                 )}
-
                                 {data.youtube && (
-                                    <a
-                                        href={data.youtube}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="w-10 h-10 rounded-full bg-red-600 text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
-                                        title="YouTube"
-                                    >
+                                    <a href={data.youtube} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-red-600 text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg" title="YouTube">
                                         <i className="fab fa-youtube text-lg"></i>
                                     </a>
                                 )}
-
                                 {data.steam && (
-                                    <a
-                                        href={data.steam}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="w-10 h-10 rounded-full bg-[#1b2838] text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
-                                        title="Steam"
-                                    >
+                                    <a href={data.steam} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-[#1b2838] text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg" title="Steam">
                                         <i className="fab fa-steam text-lg"></i>
                                     </a>
                                 )}
@@ -1430,7 +1323,7 @@ const PengurusModal = ({ isOpen, onClose, data, type }) => {
 };
 
 // ============================================
-// KOMPONEN MODAL UNTUK MURID
+// MURID MODAL
 // ============================================
 const MuridModal = ({ isOpen, onClose, data }) => {
     if (!isOpen || !data) return null;
@@ -1440,10 +1333,7 @@ const MuridModal = ({ isOpen, onClose, data }) => {
             className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
             onClick={onClose}
         >
-            <div
-                className="relative max-w-md w-full"
-                onClick={(e) => e.stopPropagation()}
-            >
+            <div className="relative max-w-md w-full" onClick={(e) => e.stopPropagation()}>
                 <div
                     className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden"
                     style={{
@@ -1468,88 +1358,40 @@ const MuridModal = ({ isOpen, onClose, data }) => {
                                 src="/images/assets/bingkai-murid.png"
                             />
                             <div className="absolute inset-[8%_12%_14%_12%] overflow-hidden rounded-[4px] bg-[#1a120b] shadow-inner flex items-center justify-center z-0">
-                                <LazyImage
-                                    className="w-full h-full object-cover object-center"
-                                    src={data.foto}
-                                    alt={data.nama}
-                                />
+                                <LazyImage className="w-full h-full object-cover object-center" src={data.foto} alt={data.nama} />
                             </div>
                         </div>
 
-                        <h3 className="font-headline-md text-headline-md text-white text-center font-bold mb-1 drop-shadow-lg">
-                            {data.nama}
-                        </h3>
+                        <h3 className="font-headline-md text-headline-md text-white text-center font-bold mb-1 drop-shadow-lg">{data.nama}</h3>
 
                         <div className="flex items-center gap-3 mt-2 flex-wrap justify-center max-w-[280px]">
                             {data.instagram && (
-                                <a
-                                    href={data.instagram}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-orange-400 text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
-                                    title="Instagram"
-                                >
+                                <a href={data.instagram} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-orange-400 text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg" title="Instagram">
                                     <i className="fab fa-instagram text-lg"></i>
                                 </a>
                             )}
-
                             {data.tiktok && (
-                                <a
-                                    href={data.tiktok}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg border border-white/20"
-                                    style={{ boxShadow: '0 0 15px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1)' }}
-                                    title="TikTok"
-                                >
+                                <a href={data.tiktok} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg border border-white/20" style={{ boxShadow: '0 0 15px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1)' }} title="TikTok">
                                     <i className="fab fa-tiktok text-lg"></i>
                                 </a>
                             )}
-
                             {data.linkedin && (
-                                <a
-                                    href={data.linkedin}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="w-10 h-10 rounded-full bg-[#0A66C2] text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
-                                    title="LinkedIn"
-                                >
+                                <a href={data.linkedin} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-[#0A66C2] text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg" title="LinkedIn">
                                     <i className="fab fa-linkedin-in text-lg"></i>
                                 </a>
                             )}
-
                             {data.github && (
-                                <a
-                                    href={data.github}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="w-10 h-10 rounded-full bg-[#333] text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
-                                    title="GitHub"
-                                >
+                                <a href={data.github} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-[#333] text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg" title="GitHub">
                                     <i className="fab fa-github text-lg"></i>
                                 </a>
                             )}
-
                             {data.youtube && (
-                                <a
-                                    href={data.youtube}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="w-10 h-10 rounded-full bg-red-600 text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
-                                    title="YouTube"
-                                >
+                                <a href={data.youtube} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-red-600 text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg" title="YouTube">
                                     <i className="fab fa-youtube text-lg"></i>
                                 </a>
                             )}
-
                             {data.steam && (
-                                <a
-                                    href={data.steam}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="w-10 h-10 rounded-full bg-[#1b2838] text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
-                                    title="Steam"
-                                >
+                                <a href={data.steam} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-[#1b2838] text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg" title="Steam">
                                     <i className="fab fa-steam text-lg"></i>
                                 </a>
                             )}
@@ -1562,7 +1404,7 @@ const MuridModal = ({ isOpen, onClose, data }) => {
 };
 
 // ============================================
-// KOMPONEN MODAL UNTUK GALERI (FULLSCREEN) - TANPA BINGKAI
+// GALLERY MODAL
 // ============================================
 const GalleryModal = ({ isOpen, onClose, data }) => {
     const [isVisible, setIsVisible] = useState(false);
@@ -1577,17 +1419,14 @@ const GalleryModal = ({ isOpen, onClose, data }) => {
             setIsImageLoaded(false);
             document.body.style.overflow = 'auto';
         }
-        return () => {
-            document.body.style.overflow = 'auto';
-        };
+        return () => { document.body.style.overflow = 'auto'; };
     }, [isOpen]);
 
     if (!isOpen || !data) return null;
 
     return (
         <div
-            className={`fixed inset-0 z-[150] flex items-center justify-center bg-black/95 backdrop-blur-md transition-opacity duration-500 ${isVisible ? 'opacity-100' : 'opacity-0'
-                }`}
+            className={`fixed inset-0 z-[150] flex items-center justify-center bg-black/95 backdrop-blur-md transition-opacity duration-500 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
             onClick={onClose}
         >
             <button
@@ -1598,8 +1437,7 @@ const GalleryModal = ({ isOpen, onClose, data }) => {
             </button>
 
             <div
-                className={`relative flex flex-col items-center justify-center w-full h-full pt-16 sm:pt-20 pb-8 px-4 sm:px-8 transition-all duration-700 ease-out ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-                    }`}
+                className={`relative flex flex-col items-center justify-center w-full h-full pt-16 sm:pt-20 pb-8 px-4 sm:px-8 transition-all duration-700 ease-out ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
                 onClick={(e) => e.stopPropagation()}
             >
                 {!isImageLoaded && (
@@ -1615,8 +1453,7 @@ const GalleryModal = ({ isOpen, onClose, data }) => {
                     <img
                         src={data.foto}
                         alt={data.deskripsi}
-                        className={`w-full h-full object-contain transition-opacity duration-500 ${isImageLoaded ? 'opacity-100' : 'opacity-0'
-                            }`}
+                        className={`w-full h-full object-contain transition-opacity duration-500 ${isImageLoaded ? 'opacity-100' : 'opacity-0'}`}
                         onLoad={() => setIsImageLoaded(true)}
                         onError={() => setIsImageLoaded(true)}
                     />
@@ -1636,7 +1473,7 @@ const GalleryModal = ({ isOpen, onClose, data }) => {
 };
 
 // ============================================
-// KOMPONEN GALERI SWIPER DENGAN PROGRESS ANGKA
+// GALLERY SWIPER
 // ============================================
 const GallerySwiper = ({ galleryData, openGalleryModal, LazyImage }) => {
     const [activeIndex, setActiveIndex] = useState(0);
@@ -1644,46 +1481,23 @@ const GallerySwiper = ({ galleryData, openGalleryModal, LazyImage }) => {
 
     const totalSlides = galleryData.length;
 
-    const handlePrev = () => {
-        if (swiperRef.current) {
-            swiperRef.current.slidePrev();
-        }
-    };
-
-    const handleNext = () => {
-        if (swiperRef.current) {
-            swiperRef.current.slideNext();
-        }
-    };
-
-    const handleSlideChange = (swiper) => {
-        setActiveIndex(swiper.realIndex);
-    };
+    const handlePrev = () => { if (swiperRef.current) swiperRef.current.slidePrev(); };
+    const handleNext = () => { if (swiperRef.current) swiperRef.current.slideNext(); };
+    const handleSlideChange = (swiper) => { setActiveIndex(swiper.realIndex); };
 
     return (
         <div className="relative w-full overflow-hidden">
-            {/* Swiper Slider */}
             <Swiper
                 modules={[Navigation, Pagination, Virtual, Autoplay, EffectCoverflow]}
                 onSwiper={(swiper) => { swiperRef.current = swiper; }}
                 onSlideChange={handleSlideChange}
                 effect="coverflow"
-                coverflowEffect={{
-                    rotate: 45,
-                    stretch: 0,
-                    depth: 200,
-                    modifier: 1,
-                    slideShadows: true,
-                }}
+                coverflowEffect={{ rotate: 45, stretch: 0, depth: 200, modifier: 1, slideShadows: true }}
                 grabCursor={true}
                 centeredSlides={true}
                 slidesPerView="auto"
                 spaceBetween={0}
-                autoplay={{
-                    delay: 4000,
-                    disableOnInteraction: false,
-                    pauseOnMouseEnter: true,
-                }}
+                autoplay={{ delay: 4000, disableOnInteraction: false, pauseOnMouseEnter: true }}
                 loop={true}
                 className="gallery-swiper-panorama"
                 breakpoints={{
@@ -1697,84 +1511,37 @@ const GallerySwiper = ({ galleryData, openGalleryModal, LazyImage }) => {
             >
                 {galleryData.map((item, index) => (
                     <SwiperSlide key={item.id} virtualIndex={index}>
-                        <div
-                            className="group relative bg-surface-container rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 mx-2 cursor-pointer"
-                            onClick={() => openGalleryModal(item)}
-                        >
+                        <div className="group relative bg-surface-container rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 mx-2 cursor-pointer" onClick={() => openGalleryModal(item)}>
                             <div className="relative h-56 md:h-64 w-full overflow-hidden bg-surface-container-high">
-                                <LazyImage
-                                    src={item.foto}
-                                    alt={item.judul}
-                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                    loading="lazy"
-                                />
+                                <LazyImage src={item.foto} alt={item.judul} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy" />
                                 <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-transparent to-transparent"></div>
                                 <div className="absolute bottom-3 left-3 right-3 text-on-primary">
-                                    <span className="font-label-nav-coordinates text-label-nav-coordinates text-secondary-fixed uppercase tracking-wider block text-[10px]">
-                                        {item.judul}
-                                    </span>
-                                    <h3 className="font-headline-sm text-headline-sm font-bold text-surface-bright text-sm">
-                                        {item.deskripsi}
-                                    </h3>
+                                    <span className="font-label-nav-coordinates text-label-nav-coordinates text-secondary-fixed uppercase tracking-wider block text-[10px]">{item.judul}</span>
+                                    <h3 className="font-headline-sm text-headline-sm font-bold text-surface-bright text-sm">{item.deskripsi}</h3>
                                 </div>
                             </div>
                             <div className="p-3 flex items-center justify-between bg-surface-container-low">
-                                <img
-                                    src="/images/assets/galery-logo.png"
-                                    alt="Gallery Logo"
-                                    className="w-15 h-10 object-contain drop-shadow-md"
-                                />
-                                <span className="font-headline-sm text-label-nav-coordinates text-secondary-fixed uppercase tracking-wider block text-[10px]">
-                                    XII RPL B 23'
-                                </span>
+                                <img src="/images/assets/galery-logo.png" alt="Gallery Logo" className="w-15 h-10 object-contain drop-shadow-md" />
+                                <span className="font-headline-sm text-label-nav-coordinates text-secondary-fixed uppercase tracking-wider block text-[10px]">XII RPL B 23'</span>
                             </div>
                         </div>
                     </SwiperSlide>
                 ))}
             </Swiper>
 
-            {/* ============================================ */}
-            {/* NAVIGATION CONTROL - PREV | COUNTER | NEXT */}
-            {/* ============================================ */}
             <div className="mt-6 sm:mt-8 flex items-center justify-center gap-3 sm:gap-4 md:gap-6">
-                {/* Tombol Prev */}
-                <button
-                    onClick={handlePrev}
-                    aria-label="Gambar Sebelumnya"
-                    className="group flex-shrink-0 w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full bg-primary-container/90 hover:bg-primary-container text-secondary-container flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm border border-secondary/20 hover:scale-110 active:scale-95"
-                >
-                    <span className="material-symbols-outlined text-xl sm:text-2xl md:text-3xl group-hover:-translate-x-0.5 transition-transform">
-                        chevron_left
-                    </span>
+                <button onClick={handlePrev} aria-label="Gambar Sebelumnya" className="group flex-shrink-0 w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full bg-primary-container/90 hover:bg-primary-container text-secondary-container flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm border border-secondary/20 hover:scale-110 active:scale-95">
+                    <span className="material-symbols-outlined text-xl sm:text-2xl md:text-3xl group-hover:-translate-x-0.5 transition-transform">chevron_left</span>
                 </button>
 
-                {/* Counter Angka */}
-                <div
-                    className="flex items-center gap-1 sm:gap-1.5 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-primary-container/90 backdrop-blur-sm border border-secondary/20 shadow-lg min-w-[80px] sm:min-w-[100px] md:min-w-[120px] justify-center"
-                >
-                    <span
-                        className="font-headline-sm text-lg sm:text-xl md:text-2xl font-bold text-secondary-fixed tabular-nums"
-                        style={{ textShadow: '0 0 10px rgba(212, 168, 83, 0.3)' }}
-                    >
-                        {activeIndex + 1}
-                    </span>
-                    <span className="text-secondary-fixed/60 text-lg sm:text-xl md:text-2xl font-bold">
-                        /
-                    </span>
-                    <span className="text-secondary-fixed/60 text-sm sm:text-base md:text-lg font-bold tabular-nums">
-                        {totalSlides}
-                    </span>
+                <div className="flex items-center gap-1 sm:gap-1.5 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-primary-container/90 backdrop-blur-sm border border-secondary/20 shadow-lg min-w-[80px] sm:min-w-[100px] md:min-w-[120px] justify-center">
+                    <span className="font-headline-sm text-lg sm:text-xl md:text-2xl font-bold text-secondary-fixed tabular-nums" style={{ textShadow: '0 0 10px rgba(212, 168, 83, 0.3)' }}>{activeIndex + 1}</span>
+                    <span className="text-secondary-fixed/60 text-lg sm:text-xl md:text-2xl font-bold">/</span>
+                    <span className="text-secondary-fixed/60 text-sm sm:text-base md:text-lg font-bold tabular-nums">{totalSlides}</span>
                 </div>
 
-                {/* Tombol Next */}
-                <button
-                    onClick={handleNext}
-                    aria-label="Gambar Selanjutnya"
-                    className="group flex-shrink-0 w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full bg-primary-container/90 hover:bg-primary-container text-secondary-container flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm border border-secondary/20 hover:scale-110 active:scale-95"
-                >
-                    <span className="material-symbols-outlined text-xl sm:text-2xl md:text-3xl group-hover:translate-x-0.5 transition-transform">
-                        chevron_right
-                    </span>
+                <button onClick={handleNext} aria-label="Gambar Selanjutnya" className="group flex-shrink-0 w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full bg-primary-container/90 hover:bg-primary-container text-secondary-container flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm border border-secondary/20 hover:scale-110 active:scale-95">
+                    <span className="material-symbols-outlined text-xl sm:text-2xl md:text-3xl group-hover:translate-x-0.5 transition-transform">chevron_right</span>
                 </button>
             </div>
         </div>
@@ -1782,7 +1549,7 @@ const GallerySwiper = ({ galleryData, openGalleryModal, LazyImage }) => {
 };
 
 // ============================================
-// KOMPONEN MODAL UNTUK MINI GAMES
+// MINI GAMES MODAL
 // ============================================
 const MiniGamesModal = ({ isOpen, onClose }) => {
     const [isVisible, setIsVisible] = useState(false);
@@ -1795,13 +1562,10 @@ const MiniGamesModal = ({ isOpen, onClose }) => {
             menuMusicRef.current.loop = true;
             menuMusicRef.current.volume = 0.9;
         }
-
         if (isOpen && activeGame === null) {
             const playPromise = menuMusicRef.current.play();
             if (playPromise !== undefined) {
-                playPromise.catch(() => {
-                    console.log('Autoplay blocked, waiting for user interaction');
-                });
+                playPromise.catch(() => { console.log('Autoplay blocked, waiting for user interaction'); });
             }
         } else {
             if (menuMusicRef.current) {
@@ -1809,7 +1573,6 @@ const MiniGamesModal = ({ isOpen, onClose }) => {
                 menuMusicRef.current.currentTime = 0;
             }
         }
-
         return () => {
             if (menuMusicRef.current) {
                 menuMusicRef.current.pause();
@@ -1834,9 +1597,7 @@ const MiniGamesModal = ({ isOpen, onClose }) => {
             setActiveGame(null);
             document.body.style.overflow = 'auto';
         }
-        return () => {
-            document.body.style.overflow = 'auto';
-        };
+        return () => { document.body.style.overflow = 'auto'; };
     }, [isOpen]);
 
     if (!isOpen) return null;
@@ -1851,64 +1612,32 @@ const MiniGamesModal = ({ isOpen, onClose }) => {
     ];
 
     return (
-        <div
-            className={`fixed inset-0 z-[180] bg-black/95 backdrop-blur-md transition-opacity duration-500 overflow-y-auto ${isVisible ? 'opacity-100' : 'opacity-0'
-                }`}
-        >
-            <div
-                className={`relative flex flex-col items-center w-full min-h-screen py-8 sm:py-12 px-4 sm:px-6 md:px-8 transition-all duration-700 ease-out ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-                    }`}
-            >
+        <div className={`fixed inset-0 z-[180] bg-black/95 backdrop-blur-md transition-opacity duration-500 overflow-y-auto ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
+            <div className={`relative flex flex-col items-center w-full min-h-screen py-8 sm:py-12 px-4 sm:px-6 md:px-8 transition-all duration-700 ease-out ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
                 {activeGame === null && (
                     <>
                         <div className="text-center mb-8 sm:mb-12 px-2 w-full">
                             <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1 sm:py-1.5 bg-gradient-to-r from-yellow-500/20 to-yellow-600/20 backdrop-blur-sm rounded-full border border-yellow-500/30 mb-3 sm:mb-4">
                                 <img src="/images/assets/coin.png" alt="Coin" className="w-4 h-4 sm:w-5 sm:h-5 object-contain" />
-                                <span className="font-label-nav-coordinates text-yellow-400 uppercase tracking-widest text-[9px] sm:text-xs font-bold">
-                                    Mini Games Area
-                                </span>
+                                <span className="font-label-nav-coordinates text-yellow-400 uppercase tracking-widest text-[9px] sm:text-xs font-bold">Mini Games Area</span>
                             </div>
-                            <h2 className="font-display-hero text-white text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold drop-shadow-2xl mb-2">
-                                Mini Games
-                            </h2>
-                            <p className="font-body-lg text-white/60 max-w-md mx-auto text-xs sm:text-sm md:text-base">
-                                Pilih game favoritmu dan mulai petualangan!
-                            </p>
+                            <h2 className="font-display-hero text-white text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold drop-shadow-2xl mb-2">Mini Games</h2>
+                            <p className="font-body-lg text-white/60 max-w-md mx-auto text-xs sm:text-sm md:text-base">Pilih game favoritmu dan mulai petualangan!</p>
                         </div>
 
                         <div className="w-full max-w-4xl">
                             <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-y-6 sm:gap-y-8 md:gap-y-10 gap-x-3 sm:gap-x-6 md:gap-x-8 justify-items-center">
                                 {gamesList.map((game) => (
-                                    <button
-                                        key={game.id}
-                                        onClick={() => setActiveGame(game.id)}
-                                        className="group flex flex-col items-center gap-2 sm:gap-3 w-full max-w-[100px] sm:max-w-[120px] md:max-w-[130px] cursor-pointer transition-all duration-300 active:scale-95"
-                                    >
+                                    <button key={game.id} onClick={() => setActiveGame(game.id)} className="group flex flex-col items-center gap-2 sm:gap-3 w-full max-w-[100px] sm:max-w-[120px] md:max-w-[130px] cursor-pointer transition-all duration-300 active:scale-95">
                                         <div className="relative w-full aspect-square">
-                                            <div
-                                                className="absolute inset-0 rounded-[22%] opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                                                style={{
-                                                    background: 'radial-gradient(circle, rgba(255, 215, 0, 0.5) 0%, transparent 70%)',
-                                                    filter: 'blur(15px)',
-                                                    transform: 'scale(1.3)',
-                                                }}
-                                            />
-                                            <div
-                                                className="relative w-full h-full rounded-[22%] overflow-hidden transition-all duration-300 group-hover:scale-105 group-active:scale-95"
-                                                style={{
-                                                    boxShadow: '0 6px 20px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 215, 0, 0.2)',
-                                                }}
-                                            >
+                                            <div className="absolute inset-0 rounded-[22%] opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'radial-gradient(circle, rgba(255, 215, 0, 0.5) 0%, transparent 70%)', filter: 'blur(15px)', transform: 'scale(1.3)' }} />
+                                            <div className="relative w-full h-full rounded-[22%] overflow-hidden transition-all duration-300 group-hover:scale-105 group-active:scale-95" style={{ boxShadow: '0 6px 20px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 215, 0, 0.2)' }}>
                                                 <img src={game.logo} alt={game.name} className="w-full h-full object-cover" />
                                             </div>
                                         </div>
                                         <div className="text-center w-full">
-                                            <h3 className="text-yellow-400 font-bold text-[11px] sm:text-xs md:text-sm leading-tight line-clamp-2 px-1">
-                                                {game.name}
-                                            </h3>
-                                            <p className="text-white/40 text-[9px] sm:text-[10px] mt-0.5 leading-tight line-clamp-1">
-                                                {game.subtitle}
-                                            </p>
+                                            <h3 className="text-yellow-400 font-bold text-[11px] sm:text-xs md:text-sm leading-tight line-clamp-2 px-1">{game.name}</h3>
+                                            <p className="text-white/40 text-[9px] sm:text-[10px] mt-0.5 leading-tight line-clamp-1">{game.subtitle}</p>
                                         </div>
                                     </button>
                                 ))}
@@ -1916,10 +1645,7 @@ const MiniGamesModal = ({ isOpen, onClose }) => {
                         </div>
 
                         <div className="mt-10 sm:mt-14 w-full flex justify-center">
-                            <button
-                                onClick={onClose}
-                                className="px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl font-bold text-sm sm:text-base transition-all hover:scale-105 active:scale-95 text-white/80 hover:text-white bg-white/5 hover:bg-white/10 border border-white/20"
-                            >
+                            <button onClick={onClose} className="px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl font-bold text-sm sm:text-base transition-all hover:scale-105 active:scale-95 text-white/80 hover:text-white bg-white/5 hover:bg-white/10 border border-white/20">
                                 ← Keluar Mini Games
                             </button>
                         </div>
@@ -1929,16 +1655,8 @@ const MiniGamesModal = ({ isOpen, onClose }) => {
                 {activeGame === 'treasure' && (
                     <div className="w-full max-w-2xl animate-[zoom-in_0.5s_ease-out]">
                         <div className="text-center mb-4 sm:mb-6">
-                            <button
-                                onClick={() => setActiveGame(null)}
-                                className="mb-3 sm:mb-4 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm text-white/60 hover:text-white transition-all hover:bg-white/10 border border-white/20"
-                            >
-                                ← Kembali ke Menu
-                            </button>
-                            <h2 className="font-display-hero text-xl sm:text-2xl md:text-3xl font-bold text-yellow-400 mb-1"
-                                style={{ textShadow: '0 0 20px rgba(255, 215, 0, 0.6)' }}>
-                                Treasure Hunt
-                            </h2>
+                            <button onClick={() => setActiveGame(null)} className="mb-3 sm:mb-4 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm text-white/60 hover:text-white transition-all hover:bg-white/10 border border-white/20">← Kembali ke Menu</button>
+                            <h2 className="font-display-hero text-xl sm:text-2xl md:text-3xl font-bold text-yellow-400 mb-1" style={{ textShadow: '0 0 20px rgba(255, 215, 0, 0.6)' }}>Treasure Hunt</h2>
                         </div>
                         <TreasureHunt onExit={() => setActiveGame(null)} />
                     </div>
@@ -1947,16 +1665,8 @@ const MiniGamesModal = ({ isOpen, onClose }) => {
                 {activeGame === 'memory' && (
                     <div className="w-full max-w-2xl animate-[zoom-in_0.5s_ease-out]">
                         <div className="text-center mb-4 sm:mb-6">
-                            <button
-                                onClick={() => setActiveGame(null)}
-                                className="mb-3 sm:mb-4 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm text-white/60 hover:text-white transition-all hover:bg-white/10 border border-white/20"
-                            >
-                                ← Kembali ke Menu
-                            </button>
-                            <h2 className="font-display-hero text-xl sm:text-2xl md:text-3xl font-bold text-yellow-400 mb-1"
-                                style={{ textShadow: '0 0 20px rgba(255, 215, 0, 0.6)' }}>
-                                Memory Card Game
-                            </h2>
+                            <button onClick={() => setActiveGame(null)} className="mb-3 sm:mb-4 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm text-white/60 hover:text-white transition-all hover:bg-white/10 border border-white/20">← Kembali ke Menu</button>
+                            <h2 className="font-display-hero text-xl sm:text-2xl md:text-3xl font-bold text-yellow-400 mb-1" style={{ textShadow: '0 0 20px rgba(255, 215, 0, 0.6)' }}>Memory Card Game</h2>
                         </div>
                         <MemoryGame onExit={() => setActiveGame(null)} />
                     </div>
@@ -1965,16 +1675,8 @@ const MiniGamesModal = ({ isOpen, onClose }) => {
                 {activeGame === 'sea' && (
                     <div className="w-full max-w-2xl animate-[zoom-in_0.5s_ease-out]">
                         <div className="text-center mb-4 sm:mb-6">
-                            <button
-                                onClick={() => setActiveGame(null)}
-                                className="mb-3 sm:mb-4 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm text-white/60 hover:text-white transition-all hover:bg-white/10 border border-white/20"
-                            >
-                                ← Kembali ke Menu
-                            </button>
-                            <h2 className="font-display-hero text-xl sm:text-2xl md:text-3xl font-bold text-yellow-400 mb-1"
-                                style={{ textShadow: '0 0 20px rgba(255, 215, 0, 0.6)' }}>
-                                Memory of the Sea
-                            </h2>
+                            <button onClick={() => setActiveGame(null)} className="mb-3 sm:mb-4 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm text-white/60 hover:text-white transition-all hover:bg-white/10 border border-white/20">← Kembali ke Menu</button>
+                            <h2 className="font-display-hero text-xl sm:text-2xl md:text-3xl font-bold text-yellow-400 mb-1" style={{ textShadow: '0 0 20px rgba(255, 215, 0, 0.6)' }}>Memory of the Sea</h2>
                         </div>
                         <MemoryOfTheSea onExit={() => setActiveGame(null)} />
                     </div>
@@ -1983,16 +1685,8 @@ const MiniGamesModal = ({ isOpen, onClose }) => {
                 {activeGame === 'codequest' && (
                     <div className="w-full max-w-2xl animate-[zoom-in_0.5s_ease-out]">
                         <div className="text-center mb-4 sm:mb-6">
-                            <button
-                                onClick={() => setActiveGame(null)}
-                                className="mb-3 sm:mb-4 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm text-white/60 hover:text-white transition-all hover:bg-white/10 border border-white/20"
-                            >
-                                ← Kembali ke Menu
-                            </button>
-                            <h2 className="font-display-hero text-xl sm:text-2xl md:text-3xl font-bold text-yellow-400 mb-1"
-                                style={{ textShadow: '0 0 20px rgba(255, 215, 0, 0.6)' }}>
-                                Pirate Code Quest
-                            </h2>
+                            <button onClick={() => setActiveGame(null)} className="mb-3 sm:mb-4 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm text-white/60 hover:text-white transition-all hover:bg-white/10 border border-white/20">← Kembali ke Menu</button>
+                            <h2 className="font-display-hero text-xl sm:text-2xl md:text-3xl font-bold text-yellow-400 mb-1" style={{ textShadow: '0 0 20px rgba(255, 215, 0, 0.6)' }}>Pirate Code Quest</h2>
                         </div>
                         <PirateCodeQuest onExit={() => setActiveGame(null)} />
                     </div>
@@ -2001,16 +1695,8 @@ const MiniGamesModal = ({ isOpen, onClose }) => {
                 {activeGame === 'map' && (
                     <div className="w-full max-w-3xl animate-[zoom-in_0.5s_ease-out]">
                         <div className="text-center mb-4 sm:mb-6">
-                            <button
-                                onClick={() => setActiveGame(null)}
-                                className="mb-3 sm:mb-4 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm text-white/60 hover:text-white transition-all hover:bg-white/10 border border-white/20"
-                            >
-                                ← Kembali ke Menu
-                            </button>
-                            <h2 className="font-display-hero text-xl sm:text-2xl md:text-3xl font-bold text-yellow-400 mb-1"
-                                style={{ textShadow: '0 0 20px rgba(255, 215, 0, 0.6)' }}>
-                                Piece of the Map
-                            </h2>
+                            <button onClick={() => setActiveGame(null)} className="mb-3 sm:mb-4 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm text-white/60 hover:text-white transition-all hover:bg-white/10 border border-white/20">← Kembali ke Menu</button>
+                            <h2 className="font-display-hero text-xl sm:text-2xl md:text-3xl font-bold text-yellow-400 mb-1" style={{ textShadow: '0 0 20px rgba(255, 215, 0, 0.6)' }}>Piece of the Map</h2>
                         </div>
                         <PieceOfTheMap onExit={() => setActiveGame(null)} />
                     </div>
@@ -2019,16 +1705,8 @@ const MiniGamesModal = ({ isOpen, onClose }) => {
                 {activeGame === 'kraken' && (
                     <div className="w-full max-w-3xl animate-[zoom-in_0.5s_ease-out]">
                         <div className="text-center mb-4 sm:mb-6">
-                            <button
-                                onClick={() => setActiveGame(null)}
-                                className="mb-3 sm:mb-4 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm text-white/60 hover:text-white transition-all hover:bg-white/10 border border-white/20"
-                            >
-                                ← Kembali ke Menu
-                            </button>
-                            <h2 className="font-display-hero text-xl sm:text-2xl md:text-3xl font-bold text-cyan-400 mb-1"
-                                style={{ textShadow: '0 0 20px rgba(56, 189, 248, 0.6)' }}>
-                                Kraken Smash
-                            </h2>
+                            <button onClick={() => setActiveGame(null)} className="mb-3 sm:mb-4 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm text-white/60 hover:text-white transition-all hover:bg-white/10 border border-white/20">← Kembali ke Menu</button>
+                            <h2 className="font-display-hero text-xl sm:text-2xl md:text-3xl font-bold text-cyan-400 mb-1" style={{ textShadow: '0 0 20px rgba(56, 189, 248, 0.6)' }}>Kraken Smash</h2>
                         </div>
                         <KrakenSmash onExit={() => setActiveGame(null)} />
                     </div>
@@ -2041,19 +1719,10 @@ const MiniGamesModal = ({ isOpen, onClose }) => {
                         0% { transform: scale(0.8); opacity: 0; }
                         100% { transform: scale(1); opacity: 1; }
                     }
-                    .fixed::-webkit-scrollbar {
-                        width: 8px;
-                    }
-                    .fixed::-webkit-scrollbar-track {
-                        background: rgba(0, 0, 0, 0.3);
-                    }
-                    .fixed::-webkit-scrollbar-thumb {
-                        background: rgba(255, 215, 0, 0.5);
-                        border-radius: 4px;
-                    }
-                    .fixed::-webkit-scrollbar-thumb:hover {
-                        background: rgba(255, 215, 0, 0.8);
-                    }
+                    .fixed::-webkit-scrollbar { width: 8px; }
+                    .fixed::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.3); }
+                    .fixed::-webkit-scrollbar-thumb { background: rgba(255, 215, 0, 0.5); border-radius: 4px; }
+                    .fixed::-webkit-scrollbar-thumb:hover { background: rgba(255, 215, 0, 0.8); }
                 `
             }} />
         </div>
@@ -2110,9 +1779,7 @@ const Home = () => {
     ];
 
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setIsVisible(true);
-        }, 100);
+        const timer = setTimeout(() => { setIsVisible(true); }, 100);
         return () => clearTimeout(timer);
     }, []);
 
@@ -2131,11 +1798,7 @@ const Home = () => {
 
     const normalizeName = (str) => {
         if (!str) return '';
-        return str
-            .toString()
-            .trim()
-            .replace(/\s+/g, ' ')
-            .toUpperCase();
+        return str.toString().trim().replace(/\s+/g, ' ').toUpperCase();
     };
 
     const filteredMurid = muridData.filter(murid => {
@@ -2160,53 +1823,44 @@ const Home = () => {
         }, 50);
     };
 
-    const handleEffectFinish = useCallback(() => {
-        setActiveEffect(null);
-    }, []);
+    const handleEffectFinish = useCallback(() => { setActiveEffect(null); }, []);
 
     const openMuridModal = (murid) => {
         setSelectedMurid(murid);
         setIsMuridModalOpen(true);
         document.body.style.overflow = 'hidden';
     };
-
     const closeMuridModal = () => {
         setIsMuridModalOpen(false);
         setSelectedMurid(null);
         document.body.style.overflow = 'auto';
     };
-
     const openPengurusModal = (pengurus, type) => {
         setSelectedPengurus(pengurus);
         setPengurusModalType(type);
         setIsPengurusModalOpen(true);
         document.body.style.overflow = 'hidden';
     };
-
     const closePengurusModal = () => {
         setIsPengurusModalOpen(false);
         setSelectedPengurus(null);
         setPengurusModalType('');
         document.body.style.overflow = 'auto';
     };
-
     const openGalleryModal = (gallery) => {
         setSelectedGallery(gallery);
         setIsGalleryModalOpen(true);
         document.body.style.overflow = 'hidden';
     };
-
     const closeGalleryModal = () => {
         setIsGalleryModalOpen(false);
         setSelectedGallery(null);
         document.body.style.overflow = 'auto';
     };
-
     const openMiniGamesModal = () => {
         setIsMiniGamesModalOpen(true);
         document.body.style.overflow = 'hidden';
     };
-
     const closeMiniGamesModal = () => {
         setIsMiniGamesModalOpen(false);
         document.body.style.overflow = 'auto';
@@ -2232,36 +1886,16 @@ const Home = () => {
 
     return (
         <div className={`w-full bg-surface min-h-screen overflow-x-hidden transition-opacity duration-700 ease-in-out ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
-            {/* Efek V1 & V2 */}
-            <GoldAuraEffect
-                isActive={activeEffect === 'v1'}
-                onFinish={handleEffectFinish}
-                duration={10000}
-            />
-            <DarkKrakenEffect
-                isActive={activeEffect === 'v2'}
-                onFinish={handleEffectFinish}
-                duration={10000}
-            />
+            <GoldAuraEffect isActive={activeEffect === 'v1'} onFinish={handleEffectFinish} duration={10000} />
+            <DarkKrakenEffect isActive={activeEffect === 'v2'} onFinish={handleEffectFinish} duration={10000} />
 
-            {/* Scroll Indicator */}
             <ScrollIndicator />
 
-            {/* ============================================ */}
             {/* HERO SECTION */}
-            {/* ============================================ */}
             <section id="home" className="w-full relative overflow-hidden min-h-screen flex items-center pt-16 lg:pt-20">
                 <div className="absolute inset-0 w-full h-full z-0">
-                    <LazyVideoBackground
-                        src="/videos/hero-bg.mp4"
-                        poster="/images/hero-poster.webp"
-                        className="w-full h-full"
-                    >
-                        <img
-                            src="/images/logo-kelas.webp"
-                            alt="Background"
-                            className="w-full h-full object-cover"
-                        />
+                    <LazyVideoBackground src="/videos/hero-bg.mp4" poster="/images/hero-poster.webp" className="w-full h-full">
+                        <img src="/images/logo-kelas.webp" alt="Background" className="w-full h-full object-cover" />
                     </LazyVideoBackground>
                     <div className="absolute inset-0 bg-gradient-to-r from-primary/80 via-primary/60 to-primary/40"></div>
                 </div>
@@ -2269,23 +1903,14 @@ const Home = () => {
                 <div className="max-w-[1280px] mx-auto relative z-10 px-gutter-mobile lg:px-gutter-desktop w-full py-16 md:py-20">
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-center">
                         <div className="lg:col-span-5 flex flex-col items-center justify-center relative mb-6 lg:mb-0">
-                            <div
-                                className="relative w-40 h-40 sm:w-30 sm:h-30 md:w-64 md:h-64 lg:w-80 lg:h-80 p-3 sm:p-4 rounded-full bg-white/10 backdrop-blur-sm shadow-xl flex items-center justify-center border border-white/20 cursor-pointer hover:scale-105 transition-transform duration-500 group"
-                                onClick={triggerEffect}
-                            >
+                            <div className="relative w-40 h-40 sm:w-30 sm:h-30 md:w-64 md:h-64 lg:w-80 lg:h-80 p-3 sm:p-4 rounded-full bg-white/10 backdrop-blur-sm shadow-xl flex items-center justify-center border border-white/20 cursor-pointer hover:scale-105 transition-transform duration-500 group" onClick={triggerEffect}>
                                 <div className="absolute inset-0 rounded-full border-2 border-dashed border-[#7b5807]/30 pointer-events-none animate-[spin_60s_linear_infinite]"></div>
                                 <div className="absolute inset-0 rounded-full bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                                 <div className="w-full h-full rounded-full overflow-hidden bg-black/20 p-2 shadow-inner flex items-center justify-center">
-                                    <LazyImage
-                                        alt="XI RPL B Logo"
-                                        className="w-full h-full object-contain rounded-full transform hover:scale-105 transition-transform duration-500"
-                                        src="/images/logo-kelas.webp"
-                                    />
+                                    <LazyImage alt="XI RPL B Logo" className="w-full h-full object-contain rounded-full transform hover:scale-105 transition-transform duration-500" src="/images/logo-kelas.webp" />
                                 </div>
                                 <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
-                                    <span className="text-xs text-white/60 font-label-code bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm">
-                                        Klik untuk kejutan ✨
-                                    </span>
+                                    <span className="text-xs text-white/60 font-label-code bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm">Klik untuk kejutan ✨</span>
                                 </div>
                             </div>
                         </div>
@@ -2293,9 +1918,7 @@ const Home = () => {
                         <div className="lg:col-span-7 flex flex-col gap-space-md text-white text-center lg:text-left">
                             <div className="inline-flex items-center gap-1 w-max px-4 py-1 bg-white/10 backdrop-blur-sm rounded-full shadow-sm border border-white/20 mx-auto lg:mx-0">
                                 <span className="material-symbols-outlined text-[#7b5807] text-sm">anchor</span>
-                                <span className="font-label-nav-coordinates text-label-nav-coordinates text-white uppercase tracking-widest text-xs">
-                                    RPL B • ANGKATAN 23
-                                </span>
+                                <span className="font-label-nav-coordinates text-label-nav-coordinates text-white uppercase tracking-widest text-xs">RPL B • ANGKATAN 23</span>
                             </div>
                             <div className="space-y-1">
                                 <h1 className="font-display-hero text-display-hero tracking-tight leading-tight text-3xl sm:text-4xl md:text-5xl lg:text-6xl">
@@ -2312,26 +1935,17 @@ const Home = () => {
                 </div>
             </section>
 
-            {/* Floating Button Mini Games */}
             <FloatingGameButton onClick={openMiniGamesModal} />
 
-            {/* Modal Mini Games */}
-            <MiniGamesModal
-                isOpen={isMiniGamesModalOpen}
-                onClose={closeMiniGamesModal}
-            />
+            <MiniGamesModal isOpen={isMiniGamesModalOpen} onClose={closeMiniGamesModal} />
 
-            {/* ============================================ */}
-            {/* SECTION: STRUKTUR ORGANISASI */}
-            {/* ============================================ */}
+            {/* SECTION STRUKTUR */}
             <div className="relative z-20" id="struktur-wrapper">
                 <ScrollReveal animation="fade-up" duration={800}>
                     <div className="w-full py-4 px-gutter-mobile lg:px-gutter-desktop bg-surface-container-low/70 border-b border-outline-variant/30">
                         <div className="max-w-[1280px] mx-auto">
                             <h2 className="font-headline-lg text-headline-lg text-primary tracking-tight">Struktur Kelas XII RPL B 23'</h2>
-                            <p className="font-body-md text-body-md text-on-surface-variant">
-                                Hierarki kelas XII RPL B 23'
-                            </p>
+                            <p className="font-body-md text-body-md text-on-surface-variant">Hierarki kelas XII RPL B 23'</p>
                         </div>
                     </div>
                 </ScrollReveal>
@@ -2358,19 +1972,14 @@ const Home = () => {
                                     <span className="font-label-nav-coordinates text-label-nav-coordinates text-[#d4a853] tracking-widest uppercase font-bold">Wali Kelas</span>
                                     <span className="material-symbols-outlined text-[#d4a853] text-sm">stars</span>
                                 </div>
-                                <div
-                                    className="relative w-[230px] sm:w-[250px] h-[345px] sm:h-[375px] group transition-transform duration-300 hover:scale-[1.02] cursor-pointer"
-                                    onClick={() => openPengurusModal(waliKelasData, 'walikelas')}
-                                >
+                                <div className="relative w-[230px] sm:w-[250px] h-[345px] sm:h-[375px] group transition-transform duration-300 hover:scale-[1.02] cursor-pointer" onClick={() => openPengurusModal(waliKelasData, 'walikelas')}>
                                     <LazyImage alt="Bingkai Emas Bajak Laut" className="absolute inset-0 w-full h-full object-contain pointer-events-none z-20 drop-shadow-md" src={frameImage} />
                                     <div className="absolute inset-[4%_14%_16%_16%] h-[320px] z-10 flex flex-col items-center justify-center text-center px-1 bg-[#2c1f16] rounded-lg shadow-xl">
                                         <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-2 border-[#d4a853] shadow-md mb-2 shrink-0 bg-[#3d2b1f]">
                                             <LazyImage className="w-full h-full object-cover" src={waliKelasData.foto} alt={waliKelasData.nama} />
                                         </div>
                                         <h3 className="font-headline-sm text-sm sm:text-[15px] font-bold text-[#d4a853] leading-tight line-clamp-2 px-1">{waliKelasData.nama}</h3>
-                                        <div className="mt-1.5 px-2 py-0.5 rounded-full bg-[#d4a853] text-[#1a120e] font-label-nav-coordinates text-[10px] tracking-wider uppercase font-semibold shadow-xs">
-                                            Wali Kelas XI RPL B
-                                        </div>
+                                        <div className="mt-1.5 px-2 py-0.5 rounded-full bg-[#d4a853] text-[#1a120e] font-label-nav-coordinates text-[10px] tracking-wider uppercase font-semibold shadow-xs">Wali Kelas XI RPL B</div>
                                     </div>
                                 </div>
                             </div>
@@ -2402,19 +2011,14 @@ const Home = () => {
                                     {ketua && (
                                         <div className="flex flex-col items-center">
                                             <div className="w-0.5 h-4 bg-[#d4a853] hidden sm:block"></div>
-                                            <div
-                                                className="relative w-[215px] sm:w-[235px] h-[325px] sm:h-[355px] group transition-transform duration-300 hover:scale-[1.02] cursor-pointer"
-                                                onClick={() => openPengurusModal(ketua, 'ketua')}
-                                            >
+                                            <div className="relative w-[215px] sm:w-[235px] h-[325px] sm:h-[355px] group transition-transform duration-300 hover:scale-[1.02] cursor-pointer" onClick={() => openPengurusModal(ketua, 'ketua')}>
                                                 <LazyImage alt="Bingkai Emas Bajak Laut" className="absolute inset-0 w-full h-full object-contain pointer-events-none z-20 drop-shadow-md" src={frameImage} />
                                                 <div className="absolute inset-[2%_14%_16%_16%] h-[320px] z-10 flex flex-col items-center justify-center text-center px-1 bg-[#2c1f16] rounded-lg shadow-xl border border-[#d4a853]/30">
                                                     <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-full overflow-hidden border-2 border-[#d4a853] shadow-md mb-2 shrink-0 bg-[#3d2b1f]">
                                                         <LazyImage className="w-full h-full object-cover" src={ketua.foto} alt={ketua.nama} />
                                                     </div>
                                                     <h3 className="font-headline-sm text-sm sm:text-[15px] font-bold text-[#d4a853] leading-tight line-clamp-2 px-1">{ketua.nama}</h3>
-                                                    <div className="mt-1.5 px-2.5 py-0.5 rounded-full bg-[#d4a853] text-[#1a120e] font-label-nav-coordinates text-[10px] tracking-wider uppercase font-semibold shadow-xs">
-                                                        Ketua Kelas
-                                                    </div>
+                                                    <div className="mt-1.5 px-2.5 py-0.5 rounded-full bg-[#d4a853] text-[#1a120e] font-label-nav-coordinates text-[10px] tracking-wider uppercase font-semibold shadow-xs">Ketua Kelas</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -2422,19 +2026,14 @@ const Home = () => {
                                     {wakil && (
                                         <div className="flex flex-col items-center">
                                             <div className="w-0.5 h-4 bg-[#d4a853] hidden sm:block"></div>
-                                            <div
-                                                className="relative w-[215px] sm:w-[235px] h-[325px] sm:h-[355px] group transition-transform duration-300 hover:scale-[1.02] cursor-pointer"
-                                                onClick={() => openPengurusModal(wakil, 'wakil')}
-                                            >
+                                            <div className="relative w-[215px] sm:w-[235px] h-[325px] sm:h-[355px] group transition-transform duration-300 hover:scale-[1.02] cursor-pointer" onClick={() => openPengurusModal(wakil, 'wakil')}>
                                                 <LazyImage alt="Bingkai Emas Bajak Laut" className="absolute inset-0 w-full h-full object-contain pointer-events-none z-20 drop-shadow-md" src={frameImage} />
                                                 <div className="absolute inset-[2%_14%_16%_16%] h-[320px] z-10 flex flex-col items-center justify-center text-center px-1 bg-[#2c1f16] rounded-lg shadow-xl border border-[#d4a853]/30">
                                                     <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-full overflow-hidden border-2 border-[#d4a853] shadow-md mb-2 shrink-0 bg-[#3d2b1f]">
                                                         <LazyImage className="w-full h-full object-cover" src={wakil.foto} alt={wakil.nama} />
                                                     </div>
                                                     <h3 className="font-headline-sm text-sm sm:text-[15px] font-bold text-[#d4a853] leading-tight line-clamp-2 px-1">{wakil.nama}</h3>
-                                                    <div className="mt-1.5 px-2.5 py-0.5 rounded-full bg-[#d4a853] text-[#1a120e] font-label-nav-coordinates text-[10px] tracking-wider uppercase font-semibold shadow-xs">
-                                                        Wakil Ketua Kelas
-                                                    </div>
+                                                    <div className="mt-1.5 px-2.5 py-0.5 rounded-full bg-[#d4a853] text-[#1a120e] font-label-nav-coordinates text-[10px] tracking-wider uppercase font-semibold shadow-xs">Wakil Ketua Kelas</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -2471,19 +2070,14 @@ const Home = () => {
                                     {sekretaris[0] && (
                                         <div className="flex flex-col items-center w-full">
                                             <div className="w-0.5 h-4 bg-[#d4a853] hidden md:block"></div>
-                                            <div
-                                                className="relative w-[210px] h-[315px] group transition-transform duration-300 hover:scale-[1.02] cursor-pointer"
-                                                onClick={() => openPengurusModal(sekretaris[0], 'sekretaris')}
-                                            >
+                                            <div className="relative w-[210px] h-[315px] group transition-transform duration-300 hover:scale-[1.02] cursor-pointer" onClick={() => openPengurusModal(sekretaris[0], 'sekretaris')}>
                                                 <LazyImage alt="Bingkai Emas Bajak Laut" className="absolute inset-0 w-full h-full object-contain pointer-events-none z-20 drop-shadow-md" src={frameImage} />
                                                 <div className="absolute inset-[2%_14%_16%_16%] h-[280px] z-10 flex flex-col items-center justify-center text-center px-1 bg-[#2c1f16] rounded-lg shadow-xl border border-[#d4a853]/30">
                                                     <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-full overflow-hidden border-2 border-[#d4a853] shadow-md mb-2 shrink-0 bg-[#3d2b1f]">
                                                         <LazyImage className="w-full h-full object-cover" src={sekretaris[0].foto} alt={sekretaris[0].nama} />
                                                     </div>
                                                     <h3 className="font-headline-sm text-sm font-bold text-[#d4a853] leading-tight line-clamp-2 px-1">{sekretaris[0].nama}</h3>
-                                                    <div className="mt-1.5 px-2.5 py-0.5 rounded-full bg-[#d4a853] text-[#1a120e] font-label-nav-coordinates text-[10px] tracking-wider uppercase font-semibold shadow-xs">
-                                                        Sekretaris 1
-                                                    </div>
+                                                    <div className="mt-1.5 px-2.5 py-0.5 rounded-full bg-[#d4a853] text-[#1a120e] font-label-nav-coordinates text-[10px] tracking-wider uppercase font-semibold shadow-xs">Sekretaris 1</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -2491,19 +2085,14 @@ const Home = () => {
                                     {sekretaris[1] && (
                                         <div className="flex flex-col items-center w-full">
                                             <div className="w-0.5 h-4 bg-[#d4a853] hidden md:block"></div>
-                                            <div
-                                                className="relative w-[210px] h-[315px] group transition-transform duration-300 hover:scale-[1.02] cursor-pointer"
-                                                onClick={() => openPengurusModal(sekretaris[1], 'sekretaris')}
-                                            >
+                                            <div className="relative w-[210px] h-[315px] group transition-transform duration-300 hover:scale-[1.02] cursor-pointer" onClick={() => openPengurusModal(sekretaris[1], 'sekretaris')}>
                                                 <LazyImage alt="Bingkai Emas Bajak Laut" className="absolute inset-0 w-full h-full object-contain pointer-events-none z-20 drop-shadow-md" src={frameImage} />
                                                 <div className="absolute inset-[2%_14%_16%_16%] h-[280px] z-10 flex flex-col items-center justify-center text-center px-1 bg-[#2c1f16] rounded-lg shadow-xl border border-[#d4a853]/30">
                                                     <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-full overflow-hidden border-2 border-[#d4a853] shadow-md mb-2 shrink-0 bg-[#3d2b1f]">
                                                         <LazyImage className="w-full h-full object-cover" src={sekretaris[1].foto} alt={sekretaris[1].nama} />
                                                     </div>
                                                     <h3 className="font-headline-sm text-sm font-bold text-[#d4a853] leading-tight line-clamp-2 px-1">{sekretaris[1].nama}</h3>
-                                                    <div className="mt-1.5 px-2.5 py-0.5 rounded-full bg-[#d4a853] text-[#1a120e] font-label-nav-coordinates text-[10px] tracking-wider uppercase font-semibold shadow-xs">
-                                                        Sekretaris 2
-                                                    </div>
+                                                    <div className="mt-1.5 px-2.5 py-0.5 rounded-full bg-[#d4a853] text-[#1a120e] font-label-nav-coordinates text-[10px] tracking-wider uppercase font-semibold shadow-xs">Sekretaris 2</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -2511,19 +2100,14 @@ const Home = () => {
                                     {bendahara[0] && (
                                         <div className="flex flex-col items-center w-full">
                                             <div className="w-0.5 h-4 bg-[#d4a853] hidden md:block"></div>
-                                            <div
-                                                className="relative w-[210px] h-[315px] group transition-transform duration-300 hover:scale-[1.02] cursor-pointer"
-                                                onClick={() => openPengurusModal(bendahara[0], 'bendahara')}
-                                            >
+                                            <div className="relative w-[210px] h-[315px] group transition-transform duration-300 hover:scale-[1.02] cursor-pointer" onClick={() => openPengurusModal(bendahara[0], 'bendahara')}>
                                                 <LazyImage alt="Bingkai Emas Bajak Laut" className="absolute inset-0 w-full h-full object-contain pointer-events-none z-20 drop-shadow-md" src={frameImage} />
                                                 <div className="absolute inset-[2%_14%_16%_16%] h-[280px] z-10 flex flex-col items-center justify-center text-center px-1 bg-[#2c1f16] rounded-lg shadow-xl border border-[#d4a853]/30">
                                                     <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-full overflow-hidden border-2 border-[#d4a853] shadow-md mb-2 shrink-0 bg-[#3d2b1f]">
                                                         <LazyImage className="w-full h-full object-cover" src={bendahara[0].foto} alt={bendahara[0].nama} />
                                                     </div>
                                                     <h3 className="font-headline-sm text-sm font-bold text-[#d4a853] leading-tight line-clamp-2 px-1">{bendahara[0].nama}</h3>
-                                                    <div className="mt-1.5 px-2.5 py-0.5 rounded-full bg-[#d4a853] text-[#1a120e] font-label-nav-coordinates text-[10px] tracking-wider uppercase font-semibold shadow-xs">
-                                                        Bendahara 1
-                                                    </div>
+                                                    <div className="mt-1.5 px-2.5 py-0.5 rounded-full bg-[#d4a853] text-[#1a120e] font-label-nav-coordinates text-[10px] tracking-wider uppercase font-semibold shadow-xs">Bendahara 1</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -2531,19 +2115,14 @@ const Home = () => {
                                     {bendahara[1] && (
                                         <div className="flex flex-col items-center w-full">
                                             <div className="w-0.5 h-4 bg-[#d4a853] hidden md:block"></div>
-                                            <div
-                                                className="relative w-[210px] h-[315px] group transition-transform duration-300 hover:scale-[1.02] cursor-pointer"
-                                                onClick={() => openPengurusModal(bendahara[1], 'bendahara')}
-                                            >
+                                            <div className="relative w-[210px] h-[315px] group transition-transform duration-300 hover:scale-[1.02] cursor-pointer" onClick={() => openPengurusModal(bendahara[1], 'bendahara')}>
                                                 <LazyImage alt="Bingkai Emas Bajak Laut" className="absolute inset-0 w-full h-full object-contain pointer-events-none z-20 drop-shadow-md" src={frameImage} />
                                                 <div className="absolute inset-[2%_14%_16%_16%] h-[280px] z-10 flex flex-col items-center justify-center text-center px-1 bg-[#2c1f16] rounded-lg shadow-xl border border-[#d4a853]/30">
                                                     <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-full overflow-hidden border-2 border-[#d4a853] shadow-md mb-2 shrink-0 bg-[#3d2b1f]">
                                                         <LazyImage className="w-full h-full object-cover" src={bendahara[1].foto} alt={bendahara[1].nama} />
                                                     </div>
                                                     <h3 className="font-headline-sm text-sm font-bold text-[#d4a853] leading-tight line-clamp-2 px-1">{bendahara[1].nama}</h3>
-                                                    <div className="mt-1.5 px-2.5 py-0.5 rounded-full bg-[#d4a853] text-[#1a120e] font-label-nav-coordinates text-[10px] tracking-wider uppercase font-semibold shadow-xs">
-                                                        Bendahara 2
-                                                    </div>
+                                                    <div className="mt-1.5 px-2.5 py-0.5 rounded-full bg-[#d4a853] text-[#1a120e] font-label-nav-coordinates text-[10px] tracking-wider uppercase font-semibold shadow-xs">Bendahara 2</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -2579,19 +2158,14 @@ const Home = () => {
                                     {seksi.map((sek, index) => (
                                         <div key={index} className="flex flex-col items-center w-full">
                                             <div className="w-0.5 h-4 bg-[#d4a853] hidden md:block"></div>
-                                            <div
-                                                className="relative w-[210px] h-[315px] group transition-transform duration-300 hover:scale-[1.02] cursor-pointer"
-                                                onClick={() => openPengurusModal(sek, 'seksi')}
-                                            >
+                                            <div className="relative w-[210px] h-[315px] group transition-transform duration-300 hover:scale-[1.02] cursor-pointer" onClick={() => openPengurusModal(sek, 'seksi')}>
                                                 <LazyImage alt="Bingkai Emas Bajak Laut" className="absolute inset-0 w-full h-full object-contain pointer-events-none z-20 drop-shadow-md" src={frameImage} />
                                                 <div className="absolute inset-[2%_14%_16%_16%] h-[280px] z-10 flex flex-col items-center justify-center text-center px-1 bg-[#2c1f16] rounded-lg shadow-xl border border-[#d4a853]/30">
                                                     <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-full overflow-hidden border-2 border-[#d4a853] shadow-md mb-2 shrink-0 bg-[#3d2b1f]">
                                                         <LazyImage className="w-full h-full object-cover" src={sek.foto} alt={sek.nama} />
                                                     </div>
                                                     <h3 className="font-headline-sm text-sm font-bold text-[#d4a853] leading-tight line-clamp-2 px-1">{sek.nama}</h3>
-                                                    <div className="mt-1.5 px-2.5 py-0.5 rounded-full bg-[#d4a853] text-[#1a120e] font-label-nav-coordinates text-[10px] tracking-wider uppercase font-semibold shadow-xs">
-                                                        {sek.jabatan}
-                                                    </div>
+                                                    <div className="mt-1.5 px-2.5 py-0.5 rounded-full bg-[#d4a853] text-[#1a120e] font-label-nav-coordinates text-[10px] tracking-wider uppercase font-semibold shadow-xs">{sek.jabatan}</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -2603,9 +2177,7 @@ const Home = () => {
                 </div>
             </div>
 
-            {/* ============================================ */}
-            {/* SECTION: DAFTAR MURID */}
-            {/* ============================================ */}
+            {/* SECTION DAFTAR MURID */}
             <section id="murid" className="w-full py-space-xl px-gutter-mobile lg:px-gutter-desktop overflow-hidden">
                 <div className="max-w-[1280px] mx-auto">
                     <ScrollReveal animation="fade-up" duration={800}>
@@ -2621,28 +2193,14 @@ const Home = () => {
                             <div className="p-space-md rounded-xl bg-surface-container-low shadow-sm flex flex-col md:flex-row gap-space-md items-center justify-between">
                                 <div className="relative w-full md:w-96">
                                     <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-xl">search</span>
-                                    <input
-                                        className="w-full pl-11 pr-4 py-2.5 rounded-lg bg-surface text-on-surface font-label-code text-label-code shadow-inner placeholder:text-on-surface-variant/70 focus:outline-none focus:ring-2 focus:ring-secondary/30 transition-all"
-                                        placeholder="// Cari nama awak..."
-                                        type="text"
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                    />
+                                    <input className="w-full pl-11 pr-4 py-2.5 rounded-lg bg-surface text-on-surface font-label-code text-label-code shadow-inner placeholder:text-on-surface-variant/70 focus:outline-none focus:ring-2 focus:ring-secondary/30 transition-all" placeholder="// Cari nama awak..." type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
                                 </div>
                             </div>
                         </div>
                     </ScrollReveal>
 
                     <ScrollReveal animation="fade-up" delay={200} duration={800}>
-                        <div
-                            className="relative rounded-xl overflow-hidden"
-                            style={{
-                                backgroundImage: 'url("/images/assets/bg-struktur.webp")',
-                                backgroundSize: '2000px',
-                                backgroundPosition: 'center',
-                                backgroundRepeat: 'no-repeat',
-                            }}
-                        >
+                        <div className="relative rounded-xl overflow-hidden" style={{ backgroundImage: 'url("/images/assets/bg-struktur.webp")', backgroundSize: '2000px', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
                             <div className="absolute inset-0 bg-black/40 sm:bg-black/30 z-0"></div>
 
                             <div className="relative z-10 w-full py-space-xl px-space-md">
@@ -2656,26 +2214,14 @@ const Home = () => {
                                             0% { transform: translateX(-50%); }
                                             100% { transform: translateX(0); }
                                         }
-                                        .infinite-scroll-left-rack {
-                                            animation: scroll-left-rack 45s linear infinite;
-                                        }
-                                        .infinite-scroll-right-rack {
-                                            animation: scroll-right-rack 45s linear infinite;
-                                        }
+                                        .infinite-scroll-left-rack { animation: scroll-left-rack 45s linear infinite; }
+                                        .infinite-scroll-right-rack { animation: scroll-right-rack 45s linear infinite; }
                                         .scroll-mask-rack {
                                             mask: linear-gradient(90deg, transparent 0%, black 5%, black 95%, transparent 100%);
                                             -webkit-mask: linear-gradient(90deg, transparent 0%, black 5%, black 95%, transparent 100%);
                                         }
-                                        .image-frame-item-rack {
-                                            transition: transform 0.3s ease, filter 0.3s ease;
-                                            flex-shrink: 0;
-                                            cursor: pointer;
-                                        }
-                                        .image-frame-item-rack:hover {
-                                            transform: scale(1.08);
-                                            filter: brightness(1.15);
-                                            z-index: 10;
-                                        }
+                                        .image-frame-item-rack { transition: transform 0.3s ease, filter 0.3s ease; flex-shrink: 0; cursor: pointer; }
+                                        .image-frame-item-rack:hover { transform: scale(1.08); filter: brightness(1.15); z-index: 10; }
                                     `
                                 }} />
 
@@ -2683,24 +2229,11 @@ const Home = () => {
                                     <div className="scroll-mask-rack w-full mb-6 sm:mb-10">
                                         <div className="infinite-scroll-left-rack flex gap-7 sm:gap-8 md:gap-12 lg:gap-20 w-max">
                                             {[...topRackStudents, ...topRackStudents, ...topRackStudents].map((murid, idx) => (
-                                                <div
-                                                    key={`top-${murid.id}-${idx}`}
-                                                    className="image-frame-item-rack group relative flex flex-col items-center"
-                                                    onClick={() => openMuridModal(murid)}
-                                                >
+                                                <div key={`top-${murid.id}-${idx}`} className="image-frame-item-rack group relative flex flex-col items-center" onClick={() => openMuridModal(murid)}>
                                                     <div className="relative w-[90px] sm:w-[95px] md:w-[115px] lg:w-[135px] aspect-[2/3] flex items-center justify-center">
-                                                        <LazyImage
-                                                            alt="Bingkai Foto Murid"
-                                                            className="pointer-events-none absolute inset-0 w-full h-full object-contain z-10 select-none"
-                                                            src="/images/assets/bingkai-murid.png"
-                                                        />
+                                                        <LazyImage alt="Bingkai Foto Murid" className="pointer-events-none absolute inset-0 w-full h-full object-contain z-10 select-none" src="/images/assets/bingkai-murid.png" />
                                                         <div className="absolute inset-[8%_10%_12%_10%] sm:inset-[10%_12%_14%_12%] overflow-hidden rounded-[4px] bg-[#1a120b] shadow-inner flex items-center justify-center z-0">
-                                                            <LazyImage
-                                                                className="w-full h-full object-cover object-center"
-                                                                src={murid.foto}
-                                                                alt={murid.nama}
-                                                                loading="lazy"
-                                                            />
+                                                            <LazyImage className="w-full h-full object-cover object-center" src={murid.foto} alt={murid.nama} loading="lazy" />
                                                         </div>
                                                     </div>
                                                     <div className="mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 px-1 sm:px-2 py-0.5 rounded bg-black/80 border border-secondary/30 text-white font-headline-sm text-[8px] sm:text-[10px] lg:text-xs tracking-wide shadow-lg text-center backdrop-blur-sm whitespace-nowrap">
@@ -2716,24 +2249,11 @@ const Home = () => {
                                     <div className="scroll-mask-rack w-full">
                                         <div className="infinite-scroll-right-rack flex gap-7 sm:gap-8 md:gap-12 lg:gap-20 w-max">
                                             {[...bottomRackStudents, ...bottomRackStudents, ...bottomRackStudents].reverse().map((murid, idx) => (
-                                                <div
-                                                    key={`bottom-${murid.id}-${idx}`}
-                                                    className="image-frame-item-rack group relative flex flex-col items-center"
-                                                    onClick={() => openMuridModal(murid)}
-                                                >
+                                                <div key={`bottom-${murid.id}-${idx}`} className="image-frame-item-rack group relative flex flex-col items-center" onClick={() => openMuridModal(murid)}>
                                                     <div className="relative w-[90px] sm:w-[95px] md:w-[115px] lg:w-[135px] aspect-[2/3] flex items-center justify-center">
-                                                        <LazyImage
-                                                            alt="Bingkai Foto Murid"
-                                                            className="pointer-events-none absolute inset-0 w-full h-full object-contain z-10 select-none"
-                                                            src="/images/assets/bingkai-murid.png"
-                                                        />
+                                                        <LazyImage alt="Bingkai Foto Murid" className="pointer-events-none absolute inset-0 w-full h-full object-contain z-10 select-none" src="/images/assets/bingkai-murid.png" />
                                                         <div className="absolute inset-[8%_10%_12%_10%] sm:inset-[10%_12%_14%_12%] overflow-hidden rounded-[4px] bg-[#1a120b] shadow-inner flex items-center justify-center z-0">
-                                                            <LazyImage
-                                                                className="w-full h-full object-cover object-center"
-                                                                src={murid.foto}
-                                                                alt={murid.nama}
-                                                                loading="lazy"
-                                                            />
+                                                            <LazyImage className="w-full h-full object-cover object-center" src={murid.foto} alt={murid.nama} loading="lazy" />
                                                         </div>
                                                     </div>
                                                     <div className="mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 px-1 sm:px-2 py-0.5 rounded bg-black/80 border border-secondary/30 text-white font-headline-sm text-[8px] sm:text-[10px] lg:text-xs tracking-wide shadow-lg text-center backdrop-blur-sm whitespace-nowrap">
@@ -2757,66 +2277,36 @@ const Home = () => {
                 </div>
             </section>
 
-            {/* ============================================ */}
-            {/* SECTION: WALL OF PROJECTS */}
-            {/* ============================================ */}
+            {/* SECTION PROJECTS */}
             <section id="projects" className="w-full py-space-xl px-gutter-mobile lg:px-gutter-desktop">
                 <div className="max-w-[1280px] mx-auto">
                     <ScrollReveal animation="fade-up" duration={800}>
                         <div className="flex flex-col md:flex-row md:items-end justify-between gap-space-lg mb-space-xl">
                             <div className="flex flex-col gap-space-2xs max-w-2xl">
                                 <h2 className="font-headline-lg text-headline-lg text-primary tracking-tight">Wall of Projects</h2>
-                                <p className="font-body-lg text-body-lg text-on-surface-variant">
-                                    Koleksi karya terbaik dari murid XII RPL B 23'
-                                </p>
+                                <p className="font-body-lg text-body-lg text-on-surface-variant">Koleksi karya terbaik dari murid XII RPL B 23'</p>
                             </div>
                         </div>
                     </ScrollReveal>
 
                     <ScrollReveal animation="zoom-in" delay={100} duration={900}>
                         <div className="relative rounded-xl overflow-hidden">
-                            <div
-                                className="absolute inset-0 w-full h-full z-0"
-                                style={{
-                                    backgroundImage: 'url("/images/assets/bg-proyek.webp")',
-                                    backgroundSize: '1250px',
-                                    backgroundPosition: 'center top -10px',
-                                    backgroundRepeat: 'no-repeat'
-                                }}
-                            ></div>
-
+                            <div className="absolute inset-0 w-full h-full z-0" style={{ backgroundImage: 'url("/images/assets/bg-proyek.webp")', backgroundSize: '1250px', backgroundPosition: 'center top -10px', backgroundRepeat: 'no-repeat' }}></div>
                             <div className="absolute inset-0 bg-black/40 z-0"></div>
 
                             <div className="relative z-10">
                                 <DraggableContainer variant="masonry" className="bg-transparent">
                                     <GridBody>
                                         {projectsData.map((project, index) => (
-                                            <GridItem
-                                                key={`${project.id}-${index}`}
-                                                className="relative h-80 w-60 md:h-96 md:w-72 group"
-                                            >
+                                            <GridItem key={`${project.id}-${index}`} className="relative h-80 w-60 md:h-96 md:w-72 group">
                                                 <div className="absolute inset-0 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300">
-                                                    <LazyImage
-                                                        src={project.image}
-                                                        alt={project.title}
-                                                        className="pointer-events-none absolute h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                                    />
+                                                    <LazyImage src={project.image} alt={project.title} className="pointer-events-none absolute h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
                                                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
-
                                                     <div className="absolute bottom-0 left-0 right-0 p-4">
-                                                        <h3 className="font-headline-sm text-headline-sm text-white font-bold">
-                                                            {project.title}
-                                                        </h3>
-                                                        <span className="font-label-code text-label-code text-secondary text-xs">
-                                                            {project.category}
-                                                        </span>
+                                                        <h3 className="font-headline-sm text-headline-sm text-white font-bold">{project.title}</h3>
+                                                        <span className="font-label-code text-label-code text-secondary text-xs">{project.category}</span>
                                                         <div className="mt-2 flex items-center gap-2">
-                                                            <a
-                                                                href={project.link}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className="inline-flex items-center gap-1 text-white/80 hover:text-secondary transition-colors font-label-code text-label-code text-xs bg-white/10 px-2 py-1 rounded-full"
-                                                            >
+                                                            <a href={project.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-white/80 hover:text-secondary transition-colors font-label-code text-label-code text-xs bg-white/10 px-2 py-1 rounded-full">
                                                                 <span>Lihat Proyek</span>
                                                                 <span className="material-symbols-outlined text-sm">open_in_new</span>
                                                             </a>
@@ -2850,48 +2340,21 @@ const Home = () => {
                 </div>
             </section>
 
-            {/* Modal Murid */}
-            <MuridModal
-                isOpen={isMuridModalOpen}
-                onClose={closeMuridModal}
-                data={selectedMurid}
-            />
+            <MuridModal isOpen={isMuridModalOpen} onClose={closeMuridModal} data={selectedMurid} />
+            <PengurusModal isOpen={isPengurusModalOpen} onClose={closePengurusModal} data={selectedPengurus} type={pengurusModalType} />
+            <GalleryModal isOpen={isGalleryModalOpen} onClose={closeGalleryModal} data={selectedGallery} />
 
-            {/* Modal Pengurus */}
-            <PengurusModal
-                isOpen={isPengurusModalOpen}
-                onClose={closePengurusModal}
-                data={selectedPengurus}
-                type={pengurusModalType}
-            />
-
-            {/* Modal Galeri */}
-            <GalleryModal
-                isOpen={isGalleryModalOpen}
-                onClose={closeGalleryModal}
-                data={selectedGallery}
-            />
-
-            {/* ============================================ */}
-            {/* SECTION: SOCIAL MEDIA */}
-            {/* ============================================ */}
+            {/* SECTION SOCIAL MEDIA */}
             <section id="social" className="w-full bg-surface py-space-xl px-gutter-mobile lg:px-gutter-desktop">
                 <div className="max-w-[1280px] mx-auto flex flex-col gap-space-xl">
                     <ScrollReveal animation="fade-up" duration={800}>
                         <div className="flex flex-col md:flex-row md:items-end justify-between gap-space-lg">
                             <div className="flex flex-col gap-space-2xs max-w-2xl">
                                 <h2 className="font-headline-lg text-headline-lg text-primary tracking-tight">Social Media RPL B 23'</h2>
-                                <p className="font-body-md text-body-md text-on-surface-variant">
-                                    Video dan momen terbaik dari awak kapal
-                                </p>
+                                <p className="font-body-md text-body-md text-on-surface-variant">Video dan momen terbaik dari awak kapal</p>
                             </div>
                             <div className="flex flex-wrap items-center gap-space-sm">
-                                <a
-                                    href="https://www.tiktok.com/@erpeelbe_?_t=ZS-906imFOCMQk&_r=1"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex items-center gap-space-2xs px-space-md py-space-sm bg-black text-white rounded-lg hover:shadow-lg transition-all font-title-sm text-title-sm"
-                                >
+                                <a href="https://www.tiktok.com/@erpeelbe_?_t=ZS-906imFOCMQk&_r=1" target="_blank" rel="noopener noreferrer" className="flex items-center gap-space-2xs px-space-md py-space-sm bg-black text-white rounded-lg hover:shadow-lg transition-all font-title-sm text-title-sm">
                                     <i className="fa-brands fa-tiktok text-lg"></i>
                                     <span>Follow TikTok</span>
                                 </a>
@@ -2908,21 +2371,14 @@ const Home = () => {
                     </ScrollReveal>
 
                     <ScrollReveal animation="fade-up" delay={200} duration={800}>
-                        <a
-                            href="https://www.tiktok.com/@erpeelbe_?_t=ZS-906imFOCMQk&_r=1"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-center text-secondary hover:text-primary transition-colors font-label-code text-label-code text-sm block"
-                        >
+                        <a href="https://www.tiktok.com/@erpeelbe_?_t=ZS-906imFOCMQk&_r=1" target="_blank" rel="noopener noreferrer" className="text-center text-secondary hover:text-primary transition-colors font-label-code text-label-code text-sm block">
                             Lihat Semua Video TikTok →
                         </a>
                     </ScrollReveal>
                 </div>
             </section>
 
-            {/* ============================================ */}
-            {/* SECTION: GALERI */}
-            {/* ============================================ */}
+            {/* SECTION GALLERY */}
             <section id="gallery" className="w-full bg-surface-container-low py-space-xl px-gutter-mobile lg:px-gutter-desktop overflow-x-hidden">
                 <div className="max-w-[1280px] mx-auto flex flex-col gap-space-xl">
                     <ScrollReveal animation="fade-up" duration={800}>
@@ -2934,25 +2390,13 @@ const Home = () => {
                     </ScrollReveal>
 
                     <ScrollReveal animation="zoom-in" delay={100} duration={900}>
-                        <GallerySwiper
-                            galleryData={galleryData}
-                            openGalleryModal={openGalleryModal}
-                            LazyImage={LazyImage}
-                        />
+                        <GallerySwiper galleryData={galleryData} openGalleryModal={openGalleryModal} LazyImage={LazyImage} />
                     </ScrollReveal>
                 </div>
             </section>
 
-            {/* ============================================ */}
-            {/* SECTION: KATA KATA AGIT (BUKU SKETCHBOOK) */}
-            {/* ============================================ */}
-
-            <section
-                id="kata-kata"
-                className="w-full relative"
-            /* 🔥 HAPUS py-space-xl dan px-gutter untuk menghilangkan strip */
-            >
-                {/* 🔥 HAPUS overlay bg-[#1a120e]/70 karena background sudah ada di KataKataBuku */}
+            {/* SECTION KATA KATA AGIT */}
+            <section id="kata-kata" className="w-full relative">
                 <div className="relative z-10">
                     <ScrollReveal animation="fade-up" duration={800}>
                         <KataKataBuku />
@@ -2967,9 +2411,7 @@ const Home = () => {
                         this.innerHTML = '<span class="material-symbols-outlined text-base animate-spin">refresh</span><span>Mengarsip Salinan Logbook...</span>';
                         setTimeout(() => {
                             this.innerHTML = '<span class="material-symbols-outlined text-base">check</span><span>Piagam Terverifikasi (PDF)</span>';
-                            setTimeout(() => {
-                                this.innerHTML = originalText;
-                            }, 3000);
+                            setTimeout(() => { this.innerHTML = originalText; }, 3000);
                         }, 1200);
                     });
                 `
