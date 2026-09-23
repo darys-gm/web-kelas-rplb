@@ -13,10 +13,12 @@ const LENS_OFFSET = { x: -30, y: -30 };
 const MAG = 1.8;
 const INITIAL_OFFSET = { right: 250, bottom: 60 };
 
-// 🔥 Zoom level untuk mobile/tablet — MAX 250%
 const ZOOM_MIN = 0.75;
 const ZOOM_MAX = 2.5;
 const ZOOM_STEP = 0.25;
+
+// 🔥 Jumlah dot indicator
+const DOT_COUNT = 5;
 
 // ============================================
 // HALAMAN KOSONG
@@ -235,15 +237,20 @@ const KataKataBuku = () => {
     const [zoomLevel, setZoomLevel] = useState(1);
     const [isDragging, setIsDragging] = useState(false);
 
+    // 🔥 State untuk dot indicator
+    const [activeDot, setActiveDot] = useState(Math.floor(DOT_COUNT / 2));
+    const [showDots, setShowDots] = useState(false);
+
     const magnifierPosRef = useRef({ x: 0, y: 0 });
     const screenSizeRef = useRef({ isMobile: false, isTablet: false, scale: 1 });
     const isDraggingRef = useRef(false);
     const rafRef = useRef(null);
+    const scrollRafRef = useRef(null);
 
     const isMobileOrTablet = screenSize.isMobile || screenSize.isTablet;
     const effectiveScale = screenSize.scale * (isMobileOrTablet ? zoomLevel : 1);
 
-    // 🔥 Disable flip saat zoomed di mobile/tablet
+    // Disable flip saat zoomed di mobile/tablet
     const disableFlip = isMobileOrTablet && zoomLevel > 1;
 
     useEffect(() => {
@@ -452,33 +459,113 @@ const KataKataBuku = () => {
         if (!isMobileOrTablet) setZoomLevel(1);
     }, [isMobileOrTablet]);
 
-    // 🔥 Auto-center scroll saat zoom berubah
+    // ============================================
+    // 🔥 AUTO-CENTER SCROLL SAAT ZOOM BERUBAH
+    // ============================================
     useEffect(() => {
         if (!isMobileOrTablet) return;
         if (!scrollAreaRef.current) return;
 
-        // Reset ke 0 dulu, lalu center via RAF
         const el = scrollAreaRef.current;
-        
+
+        // Reset dulu
         if (zoomLevel <= 1) {
             el.scrollLeft = 0;
+            setActiveDot(Math.floor(DOT_COUNT / 2));
+            setShowDots(false);
             return;
         }
 
-        // Tunggu DOM update dulu
-        const rafId = requestAnimationFrame(() => {
-            if (!scrollAreaRef.current) return;
-            const sw = el.scrollWidth;
-            const cw = el.clientWidth;
-            if (sw > cw) {
-                el.scrollLeft = (sw - cw) / 2;
-            } else {
-                el.scrollLeft = 0;
-            }
+        // 🔥 DOUBLE RAF untuk memastikan DOM sudah update
+        const raf1 = requestAnimationFrame(() => {
+            const raf2 = requestAnimationFrame(() => {
+                if (!scrollAreaRef.current) return;
+                const sw = el.scrollWidth;
+                const cw = el.clientWidth;
+                
+                if (sw > cw) {
+                    // 🔥 Set scroll ke TENGAH agar ujung kiri & kanan terlihat
+                    const centerScroll = (sw - cw) / 2;
+                    el.scrollLeft = centerScroll;
+                    setShowDots(true);
+                    
+                    // Update active dot
+                    const progress = centerScroll / (sw - cw);
+                    const dotIndex = Math.round(progress * (DOT_COUNT - 1));
+                    setActiveDot(Math.max(0, Math.min(DOT_COUNT - 1, dotIndex)));
+                } else {
+                    el.scrollLeft = 0;
+                    setActiveDot(Math.floor(DOT_COUNT / 2));
+                    setShowDots(false);
+                }
+            });
+            // Store raf2 for cleanup
         });
 
-        return () => cancelAnimationFrame(rafId);
+        return () => {
+            cancelAnimationFrame(raf1);
+        };
     }, [zoomLevel, effectiveScale, isMobileOrTablet]);
+
+    // ============================================
+    // 🔥 SCROLL LISTENER untuk update active dot
+    // ============================================
+    useEffect(() => {
+        const el = scrollAreaRef.current;
+        if (!el) return;
+
+        const handleScroll = () => {
+            if (scrollRafRef.current !== null) return;
+            
+            scrollRafRef.current = requestAnimationFrame(() => {
+                scrollRafRef.current = null;
+                
+                const sw = el.scrollWidth;
+                const cw = el.clientWidth;
+                const maxScroll = sw - cw;
+                
+                if (maxScroll <= 0) {
+                    setShowDots(false);
+                    return;
+                }
+                
+                const progress = el.scrollLeft / maxScroll;
+                const dotIndex = Math.round(progress * (DOT_COUNT - 1));
+                setActiveDot(Math.max(0, Math.min(DOT_COUNT - 1, dotIndex)));
+            });
+        };
+
+        el.addEventListener('scroll', handleScroll, { passive: true });
+        return () => {
+            el.removeEventListener('scroll', handleScroll);
+            if (scrollRafRef.current !== null) {
+                cancelAnimationFrame(scrollRafRef.current);
+                scrollRafRef.current = null;
+            }
+        };
+    }, []);
+
+    // ============================================
+    // 🔥 HANDLER DOT CLICK
+    // ============================================
+    const handleDotClick = useCallback((index) => {
+        const el = scrollAreaRef.current;
+        if (!el) return;
+
+        const sw = el.scrollWidth;
+        const cw = el.clientWidth;
+        const maxScroll = sw - cw;
+
+        if (maxScroll <= 0) return;
+
+        // Map index ke posisi scroll
+        const targetScroll = (index / (DOT_COUNT - 1)) * maxScroll;
+        
+        el.scrollTo({
+            left: targetScroll,
+            behavior: 'smooth',
+        });
+    }, []);
 
     const onPageChange = useCallback((e) => setCurrentPage(e.data), []);
     const goPrev = useCallback(() => bookRef.current?.pageFlip().flipPrev(), []);
@@ -534,7 +621,6 @@ const KataKataBuku = () => {
                         isolation: isolate;
                     }
 
-                    /* ============ WRAPPER BUKU ============ */
                     .kkb-wrapper {
                         position: relative;
                         width: 100%;
@@ -551,37 +637,23 @@ const KataKataBuku = () => {
                     }
 
                     /* ============ SCROLL AREA ============ */
-                    /* 🔥 FIX: display block + text-align center agar
-                       buku selalu center saat muat, dan bisa di-scroll
-                       sampai ujung kiri-kanan saat overflow */
                     .kkb-scroll-area {
                         position: relative;
                         width: 100%;
                         overflow-x: auto;
                         overflow-y: hidden;
                         -webkit-overflow-scrolling: touch;
-                        scrollbar-width: thin;
-                        scrollbar-color: rgba(212, 168, 83, 0.4) rgba(212, 168, 83, 0.1);
+                        scrollbar-width: none;
                         display: flex;
                         align-items: center;
                         padding: 10px 0;
                         overscroll-behavior-x: contain;
                     }
-
+                    /* Hide scrollbar */
                     .kkb-scroll-area::-webkit-scrollbar {
-                        height: 6px;
-                    }
-                    .kkb-scroll-area::-webkit-scrollbar-track {
-                        background: rgba(212, 168, 83, 0.1);
-                        border-radius: 3px;
-                    }
-                    .kkb-scroll-area::-webkit-scrollbar-thumb {
-                        background: rgba(212, 168, 83, 0.4);
-                        border-radius: 3px;
+                        display: none;
                     }
 
-                    /* 🔥 FIX: margin auto pada flex item → center saat fits,
-                       tetap left-aligned saat overflow (bisa scroll ke kanan) */
                     .kkb-spacer {
                         position: relative;
                         flex-shrink: 0;
@@ -599,6 +671,63 @@ const KataKataBuku = () => {
                         will-change: transform;
                     }
 
+                    /* ============ DOT INDICATOR ============ */
+                    .kkb-dots {
+                        display: none;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 8px;
+                        margin-top: 12px;
+                        padding: 8px 14px;
+                        background: rgba(26, 18, 11, 0.7);
+                        border: 1px solid rgba(212, 168, 83, 0.3);
+                        border-radius: 999px;
+                        backdrop-filter: blur(8px);
+                        -webkit-backdrop-filter: blur(8px);
+                        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+                        /* 🔥 Cegah trigger page flip */
+                        position: relative;
+                        z-index: 200;
+                        touch-action: manipulation;
+                    }
+
+                    .kkb-dots.show {
+                        display: inline-flex;
+                    }
+
+                    .kkb-dot {
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 50%;
+                        background: rgba(212, 168, 83, 0.3);
+                        border: 1.5px solid rgba(212, 168, 83, 0.5);
+                        padding: 0;
+                        cursor: pointer;
+                        transition: all 0.25s ease;
+                        -webkit-tap-highlight-color: transparent;
+                        /* 🔥 Area tap lebih besar dari visual */
+                        position: relative;
+                    }
+
+                    .kkb-dot::before {
+                        content: '';
+                        position: absolute;
+                        inset: -8px;
+                        border-radius: 50%;
+                    }
+
+                    .kkb-dot.active {
+                        background: #d4a853;
+                        border-color: #d4a853;
+                        width: 24px;
+                        border-radius: 6px;
+                        box-shadow: 0 0 12px rgba(212, 168, 83, 0.6);
+                    }
+
+                    .kkb-dot:active {
+                        transform: scale(0.85);
+                    }
+
                     /* ============ ZOOM LAYER ============ */
                     .kkb-zoom-wrap {
                         position: absolute;
@@ -611,9 +740,7 @@ const KataKataBuku = () => {
                         will-change: opacity;
                     }
 
-                    .kkb-zoom-wrap.on {
-                        opacity: 1;
-                    }
+                    .kkb-zoom-wrap.on { opacity: 1; }
 
                     .kkb-zoom-inner {
                         position: absolute;
@@ -623,7 +750,6 @@ const KataKataBuku = () => {
                         will-change: transform;
                     }
 
-                    /* ============ LENSA ============ */
                     .kkb-lens-standalone {
                         position: absolute;
                         top: 0;
@@ -635,21 +761,17 @@ const KataKataBuku = () => {
                         z-index: 95;
                         transform-origin: 0 0;
                         will-change: transform;
-                        
                         background: transparent;
                         border: 1px solid rgba(255, 255, 255, 0.25);
                         box-shadow: 
                             inset 0 0 12px rgba(255, 255, 255, 0.15),
                             inset 0 0 4px rgba(0, 0, 0, 0.08);
-                        
                         overflow: hidden;
                         transition: opacity 0.12s ease;
                         opacity: 0;
                     }
 
-                    .kkb-lens-standalone.on {
-                        opacity: 1;
-                    }
+                    .kkb-lens-standalone.on { opacity: 1; }
 
                     .kkb-lens-standalone::before {
                         content: '';
@@ -666,7 +788,6 @@ const KataKataBuku = () => {
                         pointer-events: none;
                     }
 
-                    /* ============ GAMBAR KACA PEMBESAR ============ */
                     .kkb-magnifier {
                         position: absolute;
                         top: 0;
@@ -677,16 +798,13 @@ const KataKataBuku = () => {
                         z-index: 100;
                         transform-origin: 0 0;
                         will-change: transform;
-                        
                         background-image: url('/images/assets/kaca-pembesar.png');
                         background-size: contain;
                         background-position: center;
                         background-repeat: no-repeat;
-                        
                         filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.5));
                     }
 
-                    /* ============ SHADOW BUKU ============ */
                     .kkb-flipbook {
                         margin: 0 auto;
                         box-shadow: none;
@@ -697,7 +815,6 @@ const KataKataBuku = () => {
                         box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.5);
                     }
 
-                    /* ============ HALAMAN ============ */
                     .kkb-flipbook .page {
                         background: #faf5e8;
                         overflow: hidden;
@@ -742,6 +859,8 @@ const KataKataBuku = () => {
                         backdrop-filter: blur(8px);
                         -webkit-backdrop-filter: blur(8px);
                         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+                        position: relative;
+                        z-index: 200;
                     }
 
                     .kkb-zoom-btn {
@@ -761,18 +880,9 @@ const KataKataBuku = () => {
                         user-select: none;
                     }
 
-                    .kkb-zoom-btn:active:not(:disabled) {
-                        transform: scale(0.9);
-                    }
-
-                    .kkb-zoom-btn:disabled {
-                        opacity: 0.3;
-                        cursor: not-allowed;
-                    }
-
-                    .kkb-zoom-btn .material-symbols-outlined {
-                        font-size: 20px;
-                    }
+                    .kkb-zoom-btn:active:not(:disabled) { transform: scale(0.9); }
+                    .kkb-zoom-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+                    .kkb-zoom-btn .material-symbols-outlined { font-size: 20px; }
 
                     .kkb-zoom-readout {
                         font-family: Georgia, serif;
@@ -813,17 +923,8 @@ const KataKataBuku = () => {
                         flex-shrink: 0;
                         -webkit-tap-highlight-color: transparent;
                     }
-                    .kkb-nav-btn:hover:not(:disabled) {
-                        transform: scale(1.1);
-                        box-shadow: 0 6px 22px rgba(212, 168, 83, 0.5);
-                    }
-                    .kkb-nav-btn:active:not(:disabled) {
-                        transform: scale(0.95);
-                    }
-                    .kkb-nav-btn:disabled {
-                        opacity: 0.3;
-                        cursor: not-allowed;
-                    }
+                    .kkb-nav-btn:active:not(:disabled) { transform: scale(0.95); }
+                    .kkb-nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
                     /* ============ RESPONSIVE ============ */
                     @media (max-width: 1024px) {
@@ -831,84 +932,43 @@ const KataKataBuku = () => {
                             padding: 40px 0 30px;
                             background-attachment: scroll;
                         }
-
-                        /* HIDE MAGNIFIER */
                         .kkb-magnifier,
                         .kkb-lens-standalone,
                         .kkb-zoom-wrap {
                             display: none !important;
                         }
-
-                        /* SHOW ZOOM CONTROLS */
                         .kkb-zoom-controls {
                             display: inline-flex;
                         }
                     }
 
                     @media (max-width: 768px) {
-                        .kkb-section {
-                            padding: 30px 0 20px;
-                            gap: 4px;
-                        }
-                        .kkb-nav-btn {
-                            width: 40px;
-                            height: 40px;
-                        }
-                        .kkb-nav-btn .material-symbols-outlined {
-                            font-size: 20px;
-                        }
-                        .kkb-zoom-btn {
-                            width: 34px;
-                            height: 34px;
-                        }
-                        .kkb-zoom-readout {
-                            font-size: 12px;
-                            min-width: 48px;
-                        }
+                        .kkb-section { padding: 30px 0 20px; gap: 4px; }
+                        .kkb-nav-btn { width: 40px; height: 40px; }
+                        .kkb-nav-btn .material-symbols-outlined { font-size: 20px; }
+                        .kkb-zoom-btn { width: 34px; height: 34px; }
+                        .kkb-zoom-readout { font-size: 12px; min-width: 48px; }
+                        .kkb-dot { width: 9px; height: 9px; }
+                        .kkb-dot.active { width: 22px; }
                     }
 
                     @media (max-width: 640px) {
-                        .kkb-section {
-                            padding: 20px 0 15px;
-                        }
-                        .kkb-nav-btn {
-                            width: 36px;
-                            height: 36px;
-                        }
-                        .kkb-nav-btn .material-symbols-outlined {
-                            font-size: 18px;
-                        }
-                        .kkb-zoom-btn {
-                            width: 32px;
-                            height: 32px;
-                        }
-                        .kkb-zoom-btn .material-symbols-outlined {
-                            font-size: 18px;
-                        }
-                        .kkb-zoom-readout {
-                            font-size: 11px;
-                            min-width: 44px;
-                        }
+                        .kkb-section { padding: 20px 0 15px; }
+                        .kkb-nav-btn { width: 36px; height: 36px; }
+                        .kkb-nav-btn .material-symbols-outlined { font-size: 18px; }
+                        .kkb-zoom-btn { width: 32px; height: 32px; }
+                        .kkb-zoom-btn .material-symbols-outlined { font-size: 18px; }
+                        .kkb-zoom-readout { font-size: 11px; min-width: 44px; }
                     }
 
                     @media (max-width: 480px) {
-                        .kkb-section {
-                            padding: 15px 0 10px;
-                        }
-                        .kkb-nav-btn {
-                            width: 32px;
-                            height: 32px;
-                        }
-                        .kkb-nav-btn .material-symbols-outlined {
-                            font-size: 16px;
-                        }
-                        .kkb-zoom-btn {
-                            width: 30px;
-                            height: 30px;
-                        }
-                        .kkb-zoom-btn .material-symbols-outlined {
-                            font-size: 16px;
-                        }
+                        .kkb-section { padding: 15px 0 10px; }
+                        .kkb-nav-btn { width: 32px; height: 32px; }
+                        .kkb-nav-btn .material-symbols-outlined { font-size: 16px; }
+                        .kkb-zoom-btn { width: 30px; height: 30px; }
+                        .kkb-zoom-btn .material-symbols-outlined { font-size: 16px; }
+                        .kkb-dot { width: 8px; height: 8px; }
+                        .kkb-dot.active { width: 20px; }
                     }
                 `
             }} />
@@ -947,9 +1007,6 @@ const KataKataBuku = () => {
                         className="kkb-scroll-area"
                         ref={scrollAreaRef}
                         style={{
-                            // 🔥 touch-action dinamis:
-                            // - zoomed: pan-x (horizontal scroll only, pageflip disabled)
-                            // - not zoomed: auto (pageflip handles swipes)
                             touchAction: disableFlip ? 'pan-x' : 'auto',
                         }}
                     >
@@ -981,14 +1038,13 @@ const KataKataBuku = () => {
                                     mobileScrollSupport={false}
                                     onFlip={onPageChange}
                                     className={`kkb-flipbook ${currentPage > 0 ? 'kkb-book-open' : ''}`}
-                                    /* 🔥 Touch smoothness: lebih cepat & responsif */
-                                    flippingTime={500}
+                                    /* 🔥 Touch flip sama dengan desktop */
+                                    flippingTime={400}
                                     usePortrait={false}
                                     autoSize={false}
-                                    clickEventForward={true}
-                                    /* 🔥 Disable swipe saat zoomed */
-                                    useMouseEvents={!disableFlip}
-                                    swipeDistance={15}
+                                    clickEventForward={false}
+                                    useMouseEvents={true}
+                                    swipeDistance={10}
                                     showPageCorners={false}
                                     disableFlipByClick={disableFlip}
                                 >
@@ -1005,6 +1061,18 @@ const KataKataBuku = () => {
                                 </HTMLFlipBook>
                             </div>
                         </div>
+                    </div>
+
+                    {/* DOT INDICATOR */}
+                    <div className={`kkb-dots ${showDots ? 'show' : ''}`}>
+                        {Array.from({ length: DOT_COUNT }).map((_, i) => (
+                            <button
+                                key={i}
+                                className={`kkb-dot ${activeDot === i ? 'active' : ''}`}
+                                onClick={() => handleDotClick(i)}
+                                aria-label={`Scroll ke bagian ${i + 1}`}
+                            />
+                        ))}
                     </div>
 
                     {/* ZOOM CONTROLS */}
@@ -1091,7 +1159,7 @@ const KataKataBuku = () => {
 
                 <p className="font-serif italic text-[9px] sm:text-[10px] md:text-xs text-[#d4a853]/70 text-center px-2">
                     {isMobileOrTablet
-                        ? 'Gunakan tombol zoom · Scroll horizontal untuk melihat seluruh halaman'
+                        ? 'Gunakan tombol zoom · Tap dot untuk navigasi scroll'
                         : 'Tahan & geser kaca pembesar untuk melihat detail halaman'
                     }
                 </p>
