@@ -134,6 +134,7 @@ const ContentPage = React.forwardRef(({ person, pageNumber }, ref) => {
                                     alt={person.nama}
                                     className="w-full h-full object-cover"
                                     draggable={false}
+                                    loading="eager"
                                     onError={(e) => {
                                         e.target.style.display = 'none';
                                         if (!e.target.parentNode.querySelector('.photo-error-icon')) {
@@ -226,6 +227,11 @@ const KataKataBuku = () => {
     const thumbRef = useRef(null);
 
     const [currentPage, setCurrentPage] = useState(0);
+    // 🔥 State untuk lock flip
+    const [isFlipping, setIsFlipping] = useState(false);
+    // 🔥 State untuk preload indicator
+    const [imagesPreloaded, setImagesPreloaded] = useState(false);
+
     const [screenSize, setScreenSize] = useState({
         isMobile: false,
         isTablet: false,
@@ -245,16 +251,56 @@ const KataKataBuku = () => {
     const rafRef = useRef(null);
     const scrollRafRef = useRef(null);
     const thumbDragRef = useRef({ startX: 0, startScrollLeft: 0 });
+    // 🔥 Ref untuk lock flip (lebih cepat dari state)
+    const isFlippingRef = useRef(false);
 
     const isMobileOrTablet = screenSize.isMobile || screenSize.isTablet;
     const effectiveScale = screenSize.scale * (isMobileOrTablet ? zoomLevel : 1);
 
-    // 🔥 Saat zoomed di mobile/tablet, disable flip
     const disableFlip = isMobileOrTablet && zoomLevel > 1;
 
     useEffect(() => {
         screenSizeRef.current = screenSize;
     }, [screenSize]);
+
+    // ============================================
+    // 🔥 PRELOAD SEMUA GAMBAR
+    // ============================================
+    useEffect(() => {
+        let cancelled = false;
+        const imagesToPreload = [
+            '/images/logo-kelas.webp',
+            '/images/assets/kaca-pembesar.png',
+            ...quotesData.map((person) => person.foto).filter(Boolean),
+        ];
+
+        let loadedCount = 0;
+        const total = imagesToPreload.length;
+
+        const checkDone = () => {
+            loadedCount++;
+            if (loadedCount >= total && !cancelled) {
+                setImagesPreloaded(true);
+            }
+        };
+
+        imagesToPreload.forEach((src) => {
+            const img = new Image();
+            img.onload = checkDone;
+            img.onerror = checkDone; // tetap hitung meskipun gagal
+            img.src = src;
+        });
+
+        // Timeout fallback — jangan tunggu selamanya
+        const timeout = setTimeout(() => {
+            if (!cancelled) setImagesPreloaded(true);
+        }, 4000);
+
+        return () => {
+            cancelled = true;
+            clearTimeout(timeout);
+        };
+    }, []);
 
     useEffect(() => {
         const handleResize = () => {
@@ -601,9 +647,35 @@ const KataKataBuku = () => {
         });
     }, []);
 
-    const onPageChange = useCallback((e) => setCurrentPage(e.data), []);
-    const goPrev = useCallback(() => bookRef.current?.pageFlip().flipPrev(), []);
-    const goNext = useCallback(() => bookRef.current?.pageFlip().flipNext(), []);
+    // ============================================
+    // 🔥 HANDLERS HALAMAN
+    // ============================================
+    const onPageChange = useCallback((e) => {
+        setCurrentPage(e.data);
+    }, []);
+
+    // 🔥 onChangeState — track kapan flip dimulai / selesai
+    const onStateChange = useCallback((e) => {
+        const state = e.data;
+        if (state === 'flipping') {
+            isFlippingRef.current = true;
+            setIsFlipping(true);
+        } else if (state === 'read' || state === 'user_fold') {
+            isFlippingRef.current = false;
+            setIsFlipping(false);
+        }
+    }, []);
+
+    // 🔥 Guard: jangan flip kalau masih flipping
+    const goPrev = useCallback(() => {
+        if (isFlippingRef.current) return;
+        bookRef.current?.pageFlip().flipPrev();
+    }, []);
+
+    const goNext = useCallback(() => {
+        if (isFlippingRef.current) return;
+        bookRef.current?.pageFlip().flipNext();
+    }, []);
 
     const handleZoomIn = useCallback(() => {
         setZoomLevel((z) => Math.min(ZOOM_MAX, +(z + ZOOM_STEP).toFixed(2)));
@@ -700,6 +772,15 @@ const KataKataBuku = () => {
                         height: ${PAGE_HEIGHT}px;
                         transform-origin: top left;
                         will-change: transform;
+                    }
+
+                    /* 🔥 PRELOAD STATE - sembunyikan buku sampai gambar siap */
+                    .kkb-container.kkb-loading {
+                        opacity: 0;
+                    }
+                    .kkb-container.kkb-ready {
+                        opacity: 1;
+                        transition: opacity 0.3s ease;
                     }
 
                     /* ============ SCROLLBAR SLIDER ============ */
@@ -971,6 +1052,12 @@ const KataKataBuku = () => {
                     .kkb-nav-btn:active:not(:disabled) { transform: scale(0.95); }
                     .kkb-nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
+                    /* 🔥 Flipping state — visual feedback */
+                    .kkb-nav-btn.kkb-flipping {
+                        opacity: 0.5;
+                        pointer-events: none;
+                    }
+
                     /* ============ RESPONSIVE ============ */
                     @media (max-width: 1024px) {
                         .kkb-section {
@@ -1052,8 +1139,6 @@ const KataKataBuku = () => {
                         className="kkb-scroll-area"
                         ref={scrollAreaRef}
                         style={{
-                            // 🔥 Mobile/tablet: selalu pan-x (scroll saja, tanpa flip)
-                            // Desktop: auto (pageflip aktif)
                             touchAction: isMobileOrTablet ? 'pan-x' : 'auto',
                         }}
                     >
@@ -1065,7 +1150,7 @@ const KataKataBuku = () => {
                             }}
                         >
                             <div
-                                className="kkb-container"
+                                className={`kkb-container ${imagesPreloaded ? 'kkb-ready' : 'kkb-loading'}`}
                                 ref={bookContainerRef}
                                 style={{
                                     transform: `scale(${effectiveScale})`,
@@ -1084,16 +1169,16 @@ const KataKataBuku = () => {
                                     showCover={true}
                                     mobileScrollSupport={false}
                                     onFlip={onPageChange}
+                                    onStateChange={onStateChange}
                                     className={`kkb-flipbook ${currentPage > 0 ? 'kkb-book-open' : ''}`}
-                                    flippingTime={400}
+                                    /* 🔥 Naikkan flippingTime jadi 600ms untuk animasi lebih halus */
+                                    flippingTime={600}
                                     usePortrait={false}
                                     autoSize={false}
                                     clickEventForward={false}
-                                    /* 🔥 KUNCI: Disable gesture flip di mobile/tablet */
                                     useMouseEvents={!isMobileOrTablet}
                                     swipeDistance={10}
                                     showPageCorners={false}
-                                    /* 🔥 Disable click flip di mobile/tablet */
                                     disableFlipByClick={isMobileOrTablet || disableFlip}
                                 >
                                     <FrontCover />
@@ -1182,8 +1267,9 @@ const KataKataBuku = () => {
                 <div className="flex items-center justify-center gap-2 sm:gap-3 md:gap-4">
                     <button
                         onClick={goPrev}
-                        disabled={currentPage <= 0}
-                        className="kkb-nav-btn"
+                        /* 🔥 Disable saat flipping */
+                        disabled={currentPage <= 0 || isFlipping}
+                        className={`kkb-nav-btn ${isFlipping ? 'kkb-flipping' : ''}`}
                         aria-label="Halaman Sebelumnya"
                     >
                         <span className="material-symbols-outlined">chevron_left</span>
@@ -1207,8 +1293,9 @@ const KataKataBuku = () => {
 
                     <button
                         onClick={goNext}
-                        disabled={currentPage >= totalBookPages - 1}
-                        className="kkb-nav-btn"
+                        /* 🔥 Disable saat flipping */
+                        disabled={currentPage >= totalBookPages - 1 || isFlipping}
+                        className={`kkb-nav-btn ${isFlipping ? 'kkb-flipping' : ''}`}
                         aria-label="Halaman Selanjutnya"
                     >
                         <span className="material-symbols-outlined">chevron_right</span>
